@@ -9,21 +9,16 @@
         android:id="@+id/powerSwitch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Power On/Off" />
+        android:text="@string/power_on_off" />
 
     <Switch
         android:id="@+id/sensorSwitch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sensor Mode" />
+        android:text="@string/sensor_mode" />
 
     <SeekBar
         android:id="@+id/brightnessSeekBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <SeekBar
-        android:id="@+id/sensitivitySeekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
@@ -31,11 +26,17 @@
         android:id="@+id/settingsButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Settings" />
+        android:text="@string/settings" />
 
     <Button
         android:id="@+id/presetButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Presets" />
+        android:text="@string/new_preset" />
+
+    <Button
+        android:id="@+id/motionLogsButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/motion_logs" />
 </LinearLayout>

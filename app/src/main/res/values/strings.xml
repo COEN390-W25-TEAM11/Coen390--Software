@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">lightingcontrol</string>
+    <string name="motion_logs">Motion Logs</string>
+    <string name="new_preset">New Preset</string>
+    <string name="settings">Settings</string>
+    <string name="power_on_off">Power On/Off</string>
+    <string name="sensor_mode">Sensor Mode</string>
+    <string name="textview">TextView</string>
 </resources>

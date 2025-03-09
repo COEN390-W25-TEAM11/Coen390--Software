@@ -11,8 +11,8 @@ import androidx.appcompat.app.AppCompatActivity;
 public class LightingControlActivity extends AppCompatActivity {
 
     private Switch powerSwitch, sensorSwitch;
-    private SeekBar brightnessSeekBar, sensitivitySeekBar;
-    private Button settingsBtn, presetBtn;
+    private SeekBar brightnessSeekBar;
+    private Button settingsBtn, presetBtn, motionLogsBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +22,7 @@ public class LightingControlActivity extends AppCompatActivity {
         powerSwitch = findViewById(R.id.powerSwitch);
         sensorSwitch = findViewById(R.id.sensorSwitch);
         brightnessSeekBar = findViewById(R.id.brightnessSeekBar);
-        sensitivitySeekBar = findViewById(R.id.sensitivitySeekBar);
+        motionLogsBtn = findViewById(R.id.motionLogsButton);
         settingsBtn = findViewById(R.id.settingsButton);
         presetBtn = findViewById(R.id.presetButton);
 
@@ -39,5 +39,14 @@ public class LightingControlActivity extends AppCompatActivity {
                 startActivity(new Intent(LightingControlActivity.this, PresetActivity.class));
             }
         });
+
+        motionLogsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(LightingControlActivity.this, MotionLogsActivity.class));
+            }
+        });
+
+
     }
 }
