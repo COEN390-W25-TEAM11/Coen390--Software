@@ -1,5 +1,6 @@
 package com.example.lightingcontrol;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 public class LightingControlActivity extends AppCompatActivity {
 
@@ -22,9 +24,11 @@ public class LightingControlActivity extends AppCompatActivity {
         powerSwitch = findViewById(R.id.powerSwitch);
         sensorSwitch = findViewById(R.id.sensorSwitch);
         brightnessSeekBar = findViewById(R.id.brightnessSeekBar);
-        sensitivitySeekBar = findViewById(R.id.sensitivitySeekBar);
         settingsBtn = findViewById(R.id.settingsButton);
         presetBtn = findViewById(R.id.presetButton);
+        Toolbar myToolbar2 = findViewById(R.id.my_toolbar2);
+        setSupportActionBar(myToolbar2);
+        getSupportActionBar().setTitle("Lighting Control");
 
         settingsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
