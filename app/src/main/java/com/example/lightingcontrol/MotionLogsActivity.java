@@ -1,6 +1,9 @@
 package com.example.lightingcontrol;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.os.Handler;
@@ -8,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -15,6 +19,7 @@ import okhttp3.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class MotionLogsActivity extends AppCompatActivity {
     private Handler handler = new Handler(); // Handler for repeating task
@@ -38,6 +43,11 @@ public class MotionLogsActivity extends AppCompatActivity {
         });
         // Fetch ESP32 data
         fetchESP32Data();
+
+        // setup toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar3);
+        setSupportActionBar(toolbar);
+        Objects.requireNonNull(getSupportActionBar()).setTitle("Motion Logs");
 
         listView = findViewById(R.id.listView);
         textView = findViewById(R.id.textView);
@@ -78,5 +88,23 @@ public class MotionLogsActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    // show the toolbar
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar, menu);
+        return true;
+    }
+
+    // functionalities for toolbar button (return)
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.backtomain) {
+            Intent lightIntent = new Intent(this, LightingControlActivity.class);
+            startActivity(lightIntent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

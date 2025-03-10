@@ -15,21 +15,17 @@ import java.util.Objects;
 
 public class LightingControlActivity extends AppCompatActivity {
 
-    private SwitchCompat powerSwitch, sensorSwitch;
-    private SeekBar brightnessSeekBar;
-    private Button settingsBtn, presetBtn, motionLogsBtn;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lighting_control);
 
-        powerSwitch = findViewById(R.id.powerSwitch);
-        sensorSwitch = findViewById(R.id.sensorSwitch);
-        brightnessSeekBar = findViewById(R.id.brightnessSeekBar);
-        motionLogsBtn = findViewById(R.id.motionLogsButton);
-        settingsBtn = findViewById(R.id.settingsButton);
-        presetBtn = findViewById(R.id.presetButton);
+        SwitchCompat powerSwitch = findViewById(R.id.powerSwitch);
+        SwitchCompat sensorSwitch = findViewById(R.id.sensorSwitch);
+        SeekBar brightnessSeekBar = findViewById(R.id.brightnessSeekBar);
+        Button motionLogsBtn = findViewById(R.id.motionLogsButton);
+        Button settingsBtn = findViewById(R.id.settingsButton);
+        Button presetBtn = findViewById(R.id.presetButton);
 
         // setup toolbar
         Toolbar toolbar = findViewById(R.id.toolbar2);
