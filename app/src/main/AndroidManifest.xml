@@ -2,8 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.lightingcontrol">
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
+        android:networkSecurityConfig="@xml/network_security_config"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -13,33 +15,25 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Lightingcontrol"
         tools:targetApi="31">
-
+        <activity
+            android:name=".MotionLogsActivity"
+            android:exported="false" />
         <!-- MainActivity: Launch (Login) Screen -->
         <activity
             android:name=".MainActivity"
-            android:label="Lighting control"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-
-
-        <!-- Lighting Control Screen -->
+        </activity> <!-- Lighting Control Screen -->
         <activity
             android:name=".LightingControlActivity"
-            android:exported="false" />
-
-        <!-- Settings Screen -->
+            android:exported="false" /> <!-- Settings Screen -->
         <activity
             android:name=".SettingsActivity"
-            android:exported="false" />
-
-        <!-- Preset Screen -->
+            android:exported="false" /> <!-- Preset Screen -->
         <activity
             android:name=".PresetActivity"
             android:exported="false" />

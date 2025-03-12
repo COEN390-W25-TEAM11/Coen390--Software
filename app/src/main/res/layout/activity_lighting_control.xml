@@ -1,49 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout2"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="20dp">
+    android:layout_height="match_parent">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/my_toolbar2"
-
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
-
-    <Switch
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/powerSwitch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Power On/Off" />
+        android:layout_width="310dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="90dp"
+        android:text="@string/power_on_off"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <Switch
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/sensorSwitch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Sensor Mode" />
+        android:layout_width="310dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/sensor_mode"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/powerSwitch" />
 
     <SeekBar
         android:id="@+id/brightnessSeekBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-
+        android:layout_width="333dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sensorSwitch" />
 
     <Button
         android:id="@+id/settingsButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Settings" />
+        android:layout_width="140dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/settings"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/presetButton"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/brightnessSeekBar" />
 
     <Button
         android:id="@+id/presetButton"
-        android:layout_width="match_parent"
+        android:layout_width="140dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/new_preset"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/settingsButton"
+        app:layout_constraintTop_toBottomOf="@+id/brightnessSeekBar" />
+
+    <Button
+        android:id="@+id/motionLogsButton"
+        android:layout_width="310dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/motion_logs"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/presetButton" />
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar2"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Presets" />
-</LinearLayout>
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
