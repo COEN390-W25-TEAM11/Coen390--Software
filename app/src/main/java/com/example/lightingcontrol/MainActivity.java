@@ -21,6 +21,10 @@ import com.google.gson.Gson;
 
 public class MainActivity extends AppCompatActivity {
 
+    // define shared preferences
+    protected SharedPreferencesHelper sharedPreferenceHelper;
+
+    // define elements
     private EditText username, password;
 
     @Override
@@ -37,8 +41,10 @@ public class MainActivity extends AppCompatActivity {
         password = findViewById(R.id.password);
         Button loginBtn = findViewById(R.id.login_button);
 
+        sharedPreferenceHelper = new SharedPreferencesHelper(MainActivity.this);
+
         // Initialize Retrofit and AuthService
-        Retrofit retrofit = RetrofitClient.getRetrofit();
+        Retrofit retrofit = RetrofitClient.getUnauthenticatedRetrofit();
         AuthService authService = retrofit.create(AuthService.class);
 
         // Button functionality
@@ -57,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
                     if (response.isSuccessful()) {
                         AuthService.LoginResponse loginResponse = response.body();
                         String token = loginResponse.getToken();
+                        sharedPreferenceHelper.saveToken(token);
                         Intent intent = new Intent(MainActivity.this, LightingControlActivity.class);
                         startActivity(intent);
                     } else {
