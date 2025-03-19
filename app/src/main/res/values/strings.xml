@@ -12,4 +12,5 @@
     <string name="backtomain">backtomain</string>
     <string name="save_preset">Save Preset</string>
     <string name="receive_notifications">Receive Notifications</string>
+    <string name="enter_username">Enter Username</string>
 </resources>
