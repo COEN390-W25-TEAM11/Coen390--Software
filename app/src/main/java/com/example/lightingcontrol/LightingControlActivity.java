@@ -10,12 +10,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 
 import com.auth0.android.jwt.JWT;
@@ -24,9 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import api.AuthService;
 import api.LightService;
 import api.RetrofitClient;
+import api.WebSocketClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -44,31 +42,27 @@ public class LightingControlActivity extends AppCompatActivity implements Create
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lighting_control);
 
-        //SwitchCompat powerSwitch = findViewById(R.id.powerSwitch);
-        //SwitchCompat sensorSwitch = findViewById(R.id.sensorSwitch);
-        //SeekBar brightnessSeekBar = findViewById(R.id.brightnessSeekBar);
-        //Button settingsBtn = findViewById(R.id.settingsButton);
+        // setup toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar2);
+        setSupportActionBar(toolbar);
+        Objects.requireNonNull(getSupportActionBar()).setTitle("Lighting Control");
 
+        // set up UI elements
         Button motionLogsBtn = findViewById(R.id.motionLogsButton);
         Button newLightBtn = findViewById(R.id.newLightButton);
         TextView helloUser = findViewById(R.id.helloUser);
         listView = findViewById(R.id.listView);
         listView.setOnItemClickListener(this); // make clickable
 
-        // setup toolbar
-        Toolbar toolbar = findViewById(R.id.toolbar2);
-        setSupportActionBar(toolbar);
-        Objects.requireNonNull(getSupportActionBar()).setTitle("Lighting Control");
-
         // get JWT token
         sharedPreferencesHelper = new SharedPreferencesHelper(this);
         String token = sharedPreferencesHelper.getToken();
 
-        // Initialize Retrofit
+        // initialize retrofit and lightservice
         Retrofit retrofit = RetrofitClient.getRetrofit(token);
         lightService = retrofit.create(LightService.class);
 
-        // setup hello user text
+        // setup hello user header
         if (token != null) {
             JWT jwt = new JWT(token);
             String username = jwt.getClaim("sub").asString();
@@ -85,15 +79,6 @@ public class LightingControlActivity extends AppCompatActivity implements Create
         // fetch lights from API endpoint
         fetchLights();
 
-        // functionality for settings button
-        /*settingsBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(LightingControlActivity.this, SpecificLightActivity.class));
-            }
-        });
-        */
-
         // when new light button is clicked, open create light fragment
         newLightBtn.setOnClickListener(v -> {
             CreateLightFragment createLightFragment = new CreateLightFragment();
@@ -108,7 +93,6 @@ public class LightingControlActivity extends AppCompatActivity implements Create
                 startActivity(new Intent(LightingControlActivity.this, MotionLogsActivity.class));
             }
         });
-
 
     }
 
@@ -158,12 +142,10 @@ public class LightingControlActivity extends AppCompatActivity implements Create
             for (LightService.LightResponse light : lights) {
                 lightNames.add(light.getName() + " (ID: " + light.getId() + ")");
             }
-
-            // Use a simple ArrayAdapter to populate the ListView with light names
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, lightNames);
             listView.setAdapter(adapter);
         } else {
-            Toast.makeText(LightingControlActivity.this, "Failed to load lights or ListView not found", Toast.LENGTH_SHORT).show();
+            Toast.makeText(LightingControlActivity.this, "Failed to load lights", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -176,8 +158,6 @@ public class LightingControlActivity extends AppCompatActivity implements Create
     // functionality for when an entry in the listView is clicked
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-        //Toast.makeText(this, "Entry clicked", Toast.LENGTH_LONG).show();
 
         Intent specificLightIntent = new Intent(this, SpecificLightActivity.class);
 

@@ -17,7 +17,6 @@ import retrofit2.Retrofit;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import com.google.gson.Gson;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,28 +31,30 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initialize Toolbar
+        // initialize Toolbar
         Toolbar myToolbar = findViewById(R.id.my_toolbar1);
         setSupportActionBar(myToolbar);
         Objects.requireNonNull(getSupportActionBar()).setTitle("Lighting Control");
 
+        // initialize UI elements
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);
         Button loginBtn = findViewById(R.id.login_button);
 
+        // initialize shared preferences
         sharedPreferenceHelper = new SharedPreferencesHelper(MainActivity.this);
 
-        // Initialize Retrofit and AuthService
+        // initialize retrofit and authservice
         Retrofit retrofit = RetrofitClient.getUnauthenticatedRetrofit();
         AuthService authService = retrofit.create(AuthService.class);
 
-        // Button functionality
+        // button functionality
         loginBtn.setOnClickListener(v -> {
 
             String userUsername = username.getText().toString();
             String userPassword = password.getText().toString();
 
-            // Create a UserLogin instance with inputs and call login API
+            // call login API
             AuthService.UserLogin userLogin = new AuthService.UserLogin(userUsername, userPassword);
             Call<AuthService.LoginResponse> call = authService.login(userLogin);
 
@@ -63,12 +64,11 @@ public class MainActivity extends AppCompatActivity {
                     if (response.isSuccessful() && !isFinishing() && !isDestroyed()) {
                         AuthService.LoginResponse loginResponse = response.body();
                         String token = loginResponse.getToken();
-                        sharedPreferenceHelper.saveToken(token);
+                        sharedPreferenceHelper.saveToken(token); // save JWT token
                         Intent intent = new Intent(MainActivity.this, LightingControlActivity.class);
                         startActivity(intent);
                         finish();
                     } else {
-                        // Handle login error
                         Toast.makeText(MainActivity.this, "Login failed: " + response.code(), Toast.LENGTH_LONG).show();
                     }
                 }

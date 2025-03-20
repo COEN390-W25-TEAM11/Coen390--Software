@@ -5,11 +5,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 
 import java.util.Objects;
@@ -17,6 +19,7 @@ import java.util.UUID;
 
 import api.LightService;
 import api.RetrofitClient;
+import api.WebSocketClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -27,59 +30,83 @@ public class SpecificLightActivity extends AppCompatActivity {
     String currentLightId, currentLightName;
     private SharedPreferencesHelper sharedPreferencesHelper;
     private LightService lightService;
+    private LightService.LightResponse lightResponse;
+    private LightService.Light light;
+    private boolean sensorMode = true;
+    private boolean manualMode = false;
+    private boolean lightInitialized = false;
+    private UUID lightId;
+    private WebSocketClient webSocketClient;
+
+    private TextView lightInformation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_specific_light);
 
-        // setup toolbar
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        Objects.requireNonNull(getSupportActionBar()).setTitle("Settings");
-
-        TextView lightName = findViewById(R.id.lightName);
-        TextView lightInformation = findViewById(R.id.lightInformation);
-
-        // get the data that was passed
+        // get the data that was passed from LightingControlActivity
         Intent intent = getIntent();
         currentLightId = intent.getStringExtra("lightId");
         currentLightName = intent.getStringExtra("lightName");
 
+        // setup toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        Objects.requireNonNull(getSupportActionBar()).setTitle("Light");
+
+        // setup UI elements
+        TextView lightName = findViewById(R.id.lightName);
         lightName.setText("Selected light: " + currentLightName);
+        TextView lightInformation = findViewById(R.id.lightInformation);
+        Button overrideButton = findViewById(R.id.overrideButton);
+        overrideButton.setText("Click for Manual Mode");
+        ToggleButton toggleButton = findViewById(R.id.toggleButton);
+        toggleButton.setVisibility(ToggleButton.INVISIBLE); // set invisible by default
 
         // get JWT token
         sharedPreferencesHelper = new SharedPreferencesHelper(this);
         String token = sharedPreferencesHelper.getToken();
 
-        // Initialize Retrofit
+        // initialize retrofit and lightservice
         Retrofit retrofit = RetrofitClient.getRetrofit(token);
         lightService = retrofit.create(LightService.class);
 
-        // display light information
-        displayLightInformation();
-    }
+        // connect web socket
+        webSocketClient = new WebSocketClient(new WebSocketClient.MyWebSocketListener());
+        webSocketClient.connectWebSocket();
 
-    private void displayLightInformation() {
-        UUID lightId = UUID.fromString(currentLightId); // Convert string id to UUID
+        // display light information
+        lightId = UUID.fromString(currentLightId); // convert string id to UUID
         Log.d("UUID: ", String.valueOf(lightId));
 
+        // get the light object using endpoint
         Call<LightService.LightResponse> call = lightService.getLightById(lightId);
         call.enqueue(new Callback<LightService.LightResponse>() {
             @Override
             public void onResponse(Call<LightService.LightResponse> call, Response<LightService.LightResponse> response) {
                 if (response.isSuccessful()) {
-                    LightService.LightResponse lightResponse = response.body();
+                    lightResponse = response.body();
                     if (lightResponse != null) {
-                        // show info
-                        TextView lightInformation = findViewById(R.id.lightInformation);
-                        lightInformation.setText("Current state: " + String.valueOf(lightResponse.getState())); // Convert int to String
+
+                        // set light object that is open
+                        light = new LightService.Light();
+                        light.setId(lightResponse.getId());
+                        light.setName(lightResponse.getName());
+                        light.setOveride(lightResponse.isOveride());
+                        light.setState(lightResponse.getState());
+                        lightInitialized = true;
+
+                        Log.d("light id: ", lightResponse.getId());
+                        Log.d("light name: ", lightResponse.getName());
+
+                        refreshInfo();
 
                     } else {
-                        Toast.makeText(SpecificLightActivity.this, "Light data is null.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SpecificLightActivity.this, "Light data is null", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(SpecificLightActivity.this, "Error fetching light: " + response.code(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SpecificLightActivity.this, "Error getting light" + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -88,6 +115,97 @@ public class SpecificLightActivity extends AppCompatActivity {
                 Toast.makeText(SpecificLightActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
+        // when override button is clicked, switch modes
+        overrideButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (lightInitialized && manualMode) { // if in manual mode before the click
+
+                    manualMode = false;
+                    sensorMode = true; // switch to sensor mode
+                    overrideButton.setText("Click for Manual Mode");
+                    toggleButton.setVisibility(ToggleButton.INVISIBLE);
+
+                    // update the light
+                    light.setOveride(false);
+                    updateLight(light);
+
+                } else if (lightInitialized && sensorMode) { // if in sensor mode before the click
+
+                    sensorMode = false;
+                    manualMode = true; // switch to manual mode
+                    overrideButton.setText("Click for Sensor Mode");
+                    toggleButton.setVisibility(ToggleButton.VISIBLE); // allow on/off toggling
+
+                    // update the light
+                    light.setOveride(true);
+                    updateLight(light);
+
+                } else {
+                    Toast.makeText(SpecificLightActivity.this, "Error switching modes", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        // functionality for toggle
+        toggleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (lightInitialized) {
+
+                    if (toggleButton.isChecked()) {
+                        light.setState(1);
+                        updateLight(light);
+
+                        Log.d("light name: ", light.getName());
+                    } else {
+                        light.setState(0);
+                        updateLight(light);
+                    }
+
+                } else {
+                    Toast.makeText(SpecificLightActivity.this, "Error toggling", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    // update the light using patch endpoint
+    private void updateLight(LightService.Light light) {
+
+        LightService.LightUpdateDto lightUpdateDto = new LightService.LightUpdateDto(light.getName(), light.getState(), light.isOveride());
+
+        Call<Void> call = lightService.patchLight(lightId.toString(), lightUpdateDto);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    refreshInfo(); 
+                } else {
+                    Toast.makeText(SpecificLightActivity.this, "Failed to update light", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(SpecificLightActivity.this, "Network error updating light" , Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // refresh the UI
+    private void refreshInfo() {
+
+        // refresh the current state
+        TextView lightInformation = findViewById(R.id.lightInformation);
+        if (lightResponse.getState() == 0) {
+            lightInformation.setText("Current state: OFF");
+        } else {
+            lightInformation.setText("Current state: ON");
+        }
+
+        // refresh the motion logs ...
     }
 
     // show the toolbar

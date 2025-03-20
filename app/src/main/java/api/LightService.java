@@ -3,11 +3,7 @@ package api;
 import java.util.List;
 import java.util.UUID;
 
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.PATCH;
@@ -35,7 +31,7 @@ public interface LightService {
     // Light object
     class Light {
         private String id, name;
-        private boolean overide;
+        private boolean Overide;
         private int state;
 
         public String getId() {
@@ -55,11 +51,11 @@ public interface LightService {
         }
 
         public boolean isOveride() {
-            return overide;
+            return Overide;
         }
 
         public void setOveride(boolean overide) {
-            this.overide = overide;
+            this.Overide = overide;
         }
 
         public int getState() {
@@ -73,19 +69,16 @@ public interface LightService {
 
     // Update light object
     class LightUpdateDto {
-        private Light light;
+        public String name;
+        public int state;
+        public boolean overide;
 
-        public LightUpdateDto(Light light) {
-            this.light = light;
+        public LightUpdateDto(String name, int state, boolean overide) {
+            this.name = name;
+            this.state = state;
+            this.overide = overide;
         }
 
-        public Light getLight() {
-            return light;
-        }
-
-        public void setLight(Light light) {
-            this.light = light;
-        }
     }
 
     // Motion history object
@@ -123,7 +116,7 @@ public interface LightService {
     class LightResponse {
         private String id;
         private String name;
-        private boolean overide;
+        private boolean Overide;
         private int state;
         private List<MotionHistory> motionHistory;
 
@@ -144,11 +137,11 @@ public interface LightService {
         }
 
         public boolean isOveride() {
-            return overide;
+            return Overide;
         }
 
         public void setOveride(boolean overide) {
-            this.overide = overide;
+            this.Overide = overide;
         }
 
         public int getState() {
