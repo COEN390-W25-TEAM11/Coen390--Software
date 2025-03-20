@@ -2,6 +2,7 @@ package com.example.lightingcontrol;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -181,12 +182,17 @@ public class LightingControlActivity extends AppCompatActivity implements Create
         Intent specificLightIntent = new Intent(this, SpecificLightActivity.class);
 
         // save the light Id of the entry that needs to be opened
-        String lightToSend = (String) parent.getItemAtPosition(position);
-        sharedPreferencesHelper.saveLight(lightToSend);
+        String clickedLight = (String) parent.getItemAtPosition(position);
+        String lightIdToSend = clickedLight.substring(clickedLight.indexOf(":") + 2, clickedLight.indexOf(")")); // get ID, in between colon and parentheses
+        String lightNameToSend = clickedLight.substring(0, clickedLight.indexOf("("));
+
+        Log.d("lightToSend: ", lightIdToSend);
+        Log.d("lightNameToSend: ", lightNameToSend);
 
         // pass light to SpecificLightActivity
-        if (lightToSend != null) {
-            specificLightIntent.putExtra("lightId", lightToSend);
+        if (lightIdToSend != null && lightNameToSend != null) {
+            specificLightIntent.putExtra("lightId", lightIdToSend);
+            specificLightIntent.putExtra("lightName", lightNameToSend);
 
             // go to SpecificLightActivity
             startActivity(specificLightIntent);

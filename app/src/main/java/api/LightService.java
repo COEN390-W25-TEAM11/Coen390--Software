@@ -1,6 +1,7 @@
 package api;
 
 import java.util.List;
+import java.util.UUID;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -18,6 +19,10 @@ public interface LightService {
     // Get all the lights in database with the last 50 motion history
     @GET("Light")
     Call<List<LightResponse>> getLights();
+
+    // Get light object by Id
+    @GET("Light/{lightId}") // Use the correct route with lightId
+    Call<LightResponse> getLightById(@Path("lightId") UUID lightId);
 
     // Create a light to be stored in the database
     @POST("Light")
