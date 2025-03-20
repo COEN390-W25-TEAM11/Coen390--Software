@@ -28,6 +28,9 @@ public interface LightService {
     @PATCH("Light/{lightId}")
     Call<Void> patchLight(@Path("lightId") String lightId, @Body LightUpdateDto lightUpdateDto);
 
+    @GET("Light/{lightId}/MotionHistory")
+    Call<List<MotionHistory>> getMotionByLight(@Path("lightId") UUID lightId);
+
     // Light object
     class Light {
         private String id, name;

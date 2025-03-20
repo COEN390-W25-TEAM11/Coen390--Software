@@ -14,7 +14,7 @@ public class WebSocketClient {
     private WebSocket webSocket;
     private OkHttpClient client;
     private WebSocketListener listener;
-    private final String URL = "ws://e335-138-229-30-132.ngrok-free.app";
+    private final String URL = "wss://e335-138-229-30-132.ngrok-free.app/websockets"; // wss://[ngrok link]/websockets
 
     public WebSocketClient(WebSocketListener listener) {
         this.listener = listener;

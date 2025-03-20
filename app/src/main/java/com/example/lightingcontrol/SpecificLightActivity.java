@@ -6,7 +6,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -14,6 +16,8 @@ import android.widget.ToggleButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -37,6 +41,7 @@ public class SpecificLightActivity extends AppCompatActivity {
     private boolean lightInitialized = false;
     private UUID lightId;
     private WebSocketClient webSocketClient;
+    private TextView noMotionMessage;
 
     private TextView lightInformation;
 
@@ -63,6 +68,9 @@ public class SpecificLightActivity extends AppCompatActivity {
         overrideButton.setText("Click for Manual Mode");
         ToggleButton toggleButton = findViewById(R.id.toggleButton);
         toggleButton.setVisibility(ToggleButton.INVISIBLE); // set invisible by default
+        ListView listView = findViewById(R.id.listView);
+        noMotionMessage = findViewById(R.id.noMotionMessage);
+        noMotionMessage.setVisibility(noMotionMessage.INVISIBLE); // set invisible by default
 
         // get JWT token
         sharedPreferencesHelper = new SharedPreferencesHelper(this);
@@ -116,6 +124,9 @@ public class SpecificLightActivity extends AppCompatActivity {
             }
         });
 
+        // fetch motion activity
+        fetchMotionHistory();
+
         // when override button is clicked, switch modes
         overrideButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -157,11 +168,13 @@ public class SpecificLightActivity extends AppCompatActivity {
                     if (toggleButton.isChecked()) {
                         light.setState(1);
                         updateLight(light);
+                        lightInformation.setText("Current state: OFF");
 
                         Log.d("light name: ", light.getName());
                     } else {
                         light.setState(0);
                         updateLight(light);
+                        lightInformation.setText("Current state: ON");
                     }
 
                 } else {
@@ -181,7 +194,7 @@ public class SpecificLightActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    refreshInfo(); 
+                    Log.d("updateLight", "success updating light");
                 } else {
                     Toast.makeText(SpecificLightActivity.this, "Failed to update light", Toast.LENGTH_SHORT).show();
                 }
@@ -206,6 +219,48 @@ public class SpecificLightActivity extends AppCompatActivity {
         }
 
         // refresh the motion logs ...
+    }
+
+    private void fetchMotionHistory() {
+        ListView listView = findViewById(R.id.listView);
+        Call<List<LightService.MotionHistory>> call = lightService.getMotionByLight(lightId); // Use the new endpoint
+        call.enqueue(new Callback<List<LightService.MotionHistory>>() {
+            @Override
+            public void onResponse(Call<List<LightService.MotionHistory>> call, Response<List<LightService.MotionHistory>> response) {
+                if (response.isSuccessful()) {
+                    List<LightService.MotionHistory> motionHistory = response.body();
+
+                    if (motionHistory != null && !motionHistory.isEmpty()) {
+                        // motion history exists, display it in the ListView
+                        ArrayAdapter<LightService.MotionHistory> adapter = new ArrayAdapter<>(
+                                SpecificLightActivity.this,
+                                android.R.layout.simple_list_item_1,
+                                motionHistory
+                        );
+                        listView.setAdapter(adapter);
+                        listView.setVisibility(View.VISIBLE); // Show the ListView
+                        noMotionMessage.setVisibility(View.INVISIBLE); // Hide the message
+                    } else {
+                        // no motion history, display the message
+                        listView.setVisibility(View.INVISIBLE); // hide the listview.
+                        noMotionMessage.setVisibility(View.VISIBLE);
+                        noMotionMessage.setText("No motion history to display");
+                        //Toast.makeText(SpecificLightActivity.this, "No motion history to display", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    // error fetching motion history
+                    listView.setVisibility(View.INVISIBLE); // hide the listview.
+                    noMotionMessage.setVisibility(View.VISIBLE);
+                    noMotionMessage.setText("Error displaying motion history");
+                    //Toast.makeText(SpecificLightActivity.this, "Failed to fetch motion history: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<LightService.MotionHistory>> call, Throwable t) {
+                Toast.makeText(SpecificLightActivity.this, "Network error fetching motion history", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     // show the toolbar
