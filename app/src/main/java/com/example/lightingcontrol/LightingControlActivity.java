@@ -88,7 +88,7 @@ public class LightingControlActivity extends AppCompatActivity implements Create
         /*settingsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(LightingControlActivity.this, SettingsActivity.class));
+                startActivity(new Intent(LightingControlActivity.this, SpecificLightActivity.class));
             }
         });
         */
@@ -175,14 +175,21 @@ public class LightingControlActivity extends AppCompatActivity implements Create
     // functionality for when an entry in the listView is clicked
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        /*LightService.LightResponse light = lights.get(position);
-        String details = "ID: " + light.getId() +
-                "\nName: " + light.getName() +
-                "\nState: " + light.getState() +
-                "\nOverride: " + light.isOveride();
 
-         */
+        //Toast.makeText(this, "Entry clicked", Toast.LENGTH_LONG).show();
 
-        Toast.makeText(this, "Entry clicked", Toast.LENGTH_LONG).show();
+        Intent specificLightIntent = new Intent(this, SpecificLightActivity.class);
+
+        // save the light Id of the entry that needs to be opened
+        String lightToSend = (String) parent.getItemAtPosition(position);
+        sharedPreferencesHelper.saveLight(lightToSend);
+
+        // pass light to SpecificLightActivity
+        if (lightToSend != null) {
+            specificLightIntent.putExtra("lightId", lightToSend);
+
+            // go to SpecificLightActivity
+            startActivity(specificLightIntent);
+        }
     }
 }

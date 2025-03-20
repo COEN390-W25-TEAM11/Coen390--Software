@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 
 public class SharedPreferencesHelper {
 
-    // SHARED PREFERENCES SAVES: JWT token
+    // SHARED PREFERENCES SAVES: JWT token, light to open on SpecificLightActivity
 
     private static SharedPreferences sharedPreferences = null;
 
@@ -30,6 +30,18 @@ public class SharedPreferencesHelper {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.remove(getToken());
         editor.apply();
+    }
+
+    // save lightToOpen
+    public void saveLight(String lightId) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("lightId", lightId);
+        editor.apply();
+    }
+
+    // get JWT token
+    public String getLight() {
+        return sharedPreferences.getString("lightId", null);
     }
 
 }
