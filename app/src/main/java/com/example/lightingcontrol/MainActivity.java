@@ -60,12 +60,13 @@ public class MainActivity extends AppCompatActivity {
             call.enqueue(new Callback<AuthService.LoginResponse>() {
                 @Override
                 public void onResponse(Call<AuthService.LoginResponse> call, Response<AuthService.LoginResponse> response) {
-                    if (response.isSuccessful()) {
+                    if (response.isSuccessful() && !isFinishing() && !isDestroyed()) {
                         AuthService.LoginResponse loginResponse = response.body();
                         String token = loginResponse.getToken();
                         sharedPreferenceHelper.saveToken(token);
                         Intent intent = new Intent(MainActivity.this, LightingControlActivity.class);
                         startActivity(intent);
+                        finish();
                     } else {
                         // Handle login error
                         Toast.makeText(MainActivity.this, "Login failed: " + response.code(), Toast.LENGTH_LONG).show();

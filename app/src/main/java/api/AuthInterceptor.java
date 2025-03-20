@@ -23,8 +23,11 @@ public class AuthInterceptor implements Interceptor {
     public Response intercept(@NonNull Chain chain) throws IOException {
         Request original = chain.request();
 
-        Request.Builder builder = original.newBuilder()
-                .header("Authorization to: ", token);
+        Request.Builder builder = original.newBuilder();
+
+        if (token != null && !token.isEmpty()) {
+            builder.header("Authorization", "Bearer " + token);
+        }
 
         Request request = builder.build();
         return chain.proceed(request);
