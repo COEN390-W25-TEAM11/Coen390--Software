@@ -10,7 +10,7 @@ public class SharedPreferencesHelper {
     private static SharedPreferences sharedPreferences = null;
 
     public SharedPreferencesHelper(Context context) {
-        sharedPreferences = context.getSharedPreferences("ProfilePreference", Context.MODE_PRIVATE );
+        sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE );
     }
 
     // save JWT token
@@ -23,6 +23,13 @@ public class SharedPreferencesHelper {
     // get JWT token
     public String getToken() {
         return sharedPreferences.getString("token", null);
+    }
+
+    // clear JWT token
+    public void clearToken() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove(getToken());
+        editor.apply();
     }
 
 }

@@ -32,6 +32,7 @@ android {
 }
 
 dependencies {
+    implementation (libs.jwtdecode)
     implementation(libs.logging.interceptor)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
@@ -40,6 +41,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+    implementation(libs.play.services.cast.framework)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
