@@ -16,14 +16,19 @@ import android.widget.ToggleButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
 import api.LightService;
 import api.RetrofitClient;
 import api.WebSocketClient;
+import okhttp3.WebSocket;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -44,6 +49,11 @@ public class SpecificLightActivity extends AppCompatActivity {
     private TextView noMotionMessage;
 
     private TextView lightInformation;
+
+    private List<String> formattedMotionHistory = new ArrayList<>();
+    private ArrayAdapter<String> motionHistoryAdapter;
+
+    private MyWebSocketListener webSocketListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +82,14 @@ public class SpecificLightActivity extends AppCompatActivity {
         noMotionMessage = findViewById(R.id.noMotionMessage);
         noMotionMessage.setVisibility(noMotionMessage.INVISIBLE); // set invisible by default
 
+        // setup ArrayAdapter for motion history
+        motionHistoryAdapter = new ArrayAdapter<>(
+                SpecificLightActivity.this,
+                android.R.layout.simple_list_item_1,
+                formattedMotionHistory
+        );
+        listView.setAdapter(motionHistoryAdapter);
+
         // get JWT token
         sharedPreferencesHelper = new SharedPreferencesHelper(this);
         String token = sharedPreferencesHelper.getToken();
@@ -80,8 +98,11 @@ public class SpecificLightActivity extends AppCompatActivity {
         Retrofit retrofit = RetrofitClient.getRetrofit(token);
         lightService = retrofit.create(LightService.class);
 
+        // setup web socket listener
+        webSocketListener = new MyWebSocketListener();
+
         // connect web socket
-        webSocketClient = new WebSocketClient(new WebSocketClient.MyWebSocketListener());
+        webSocketClient = new WebSocketClient(webSocketListener); // Pass the listener
         webSocketClient.connectWebSocket();
 
         // display light information
@@ -166,13 +187,13 @@ public class SpecificLightActivity extends AppCompatActivity {
                 if (lightInitialized) {
 
                     if (toggleButton.isChecked()) {
-                        light.setState(1);
+                        light.setState(0);
                         updateLight(light);
                         lightInformation.setText("Current state: OFF");
 
                         Log.d("light name: ", light.getName());
                     } else {
-                        light.setState(0);
+                        light.setState(1);
                         updateLight(light);
                         lightInformation.setText("Current state: ON");
                     }
@@ -223,7 +244,7 @@ public class SpecificLightActivity extends AppCompatActivity {
 
     private void fetchMotionHistory() {
         ListView listView = findViewById(R.id.listView);
-        Call<List<LightService.MotionHistory>> call = lightService.getMotionByLight(lightId); // Use the new endpoint
+        Call<List<LightService.MotionHistory>> call = lightService.getMotionByLight(lightId);
         call.enqueue(new Callback<List<LightService.MotionHistory>>() {
             @Override
             public void onResponse(Call<List<LightService.MotionHistory>> call, Response<List<LightService.MotionHistory>> response) {
@@ -231,28 +252,38 @@ public class SpecificLightActivity extends AppCompatActivity {
                     List<LightService.MotionHistory> motionHistory = response.body();
 
                     if (motionHistory != null && !motionHistory.isEmpty()) {
-                        // motion history exists, display it in the ListView
-                        ArrayAdapter<LightService.MotionHistory> adapter = new ArrayAdapter<>(
-                                SpecificLightActivity.this,
-                                android.R.layout.simple_list_item_1,
-                                motionHistory
-                        );
-                        listView.setAdapter(adapter);
-                        listView.setVisibility(View.VISIBLE); // Show the ListView
-                        noMotionMessage.setVisibility(View.INVISIBLE); // Hide the message
+                        formattedMotionHistory.clear(); // Clear previous list
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS", Locale.US);
+                        SimpleDateFormat displayFormat = new SimpleDateFormat("HH:mm:ss, EEEE dd/MM/yyyy", Locale.US);
+
+                        for (LightService.MotionHistory history : motionHistory) {
+                            String dateString = history.getDateTime();
+                            try {
+                                Date date = dateFormat.parse(dateString);
+                                String formattedDate = displayFormat.format(date);
+                                formattedMotionHistory.add("Motion detected at: " + formattedDate);
+                            } catch (ParseException e) {
+                                Log.e("SpecificLightActivity", "Error parsing date: " + dateString, e);
+                                formattedMotionHistory.add("Error parsing date.");
+                            }
+                        }
+
+                        runOnUiThread(() -> {
+                            motionHistoryAdapter.notifyDataSetChanged();
+                        });
+
+                        noMotionMessage.setVisibility(View.VISIBLE);
+                        noMotionMessage.setText("Motion History:");
+                        listView.setVisibility(View.VISIBLE);
                     } else {
-                        // no motion history, display the message
-                        listView.setVisibility(View.INVISIBLE); // hide the listview.
+                        listView.setVisibility(View.INVISIBLE);
                         noMotionMessage.setVisibility(View.VISIBLE);
                         noMotionMessage.setText("No motion history to display");
-                        //Toast.makeText(SpecificLightActivity.this, "No motion history to display", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    // error fetching motion history
-                    listView.setVisibility(View.INVISIBLE); // hide the listview.
+                    listView.setVisibility(View.INVISIBLE);
                     noMotionMessage.setVisibility(View.VISIBLE);
                     noMotionMessage.setText("Error displaying motion history");
-                    //Toast.makeText(SpecificLightActivity.this, "Failed to fetch motion history: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -279,5 +310,25 @@ public class SpecificLightActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private class MyWebSocketListener extends WebSocketClient.MyWebSocketListener {
+        @Override
+        public void onOpen(WebSocket webSocket, okhttp3.Response response) {
+            super.onOpen(webSocket, response);
+            Log.d("WebSocket", "WebSocket connection opened");
+        }
+        @Override
+        public void onMessage(WebSocket webSocket, String text) {
+            Log.d("WebSocket", "onMessage() called: " + text);
+            if (text.contains("has movement")) {
+                if (text.contains(currentLightName)){
+                    runOnUiThread(() -> {
+                        Log.d("WebSocket", "runOnUiThread called");
+                        fetchMotionHistory();
+                    });
+                }
+            }
+        }
     }
 }
