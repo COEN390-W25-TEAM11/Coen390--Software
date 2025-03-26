@@ -102,7 +102,7 @@ public class SpecificLightActivity extends AppCompatActivity {
         webSocketListener = new MyWebSocketListener();
 
         // connect web socket
-        webSocketClient = new WebSocketClient(webSocketListener); // Pass the listener
+        webSocketClient = new WebSocketClient(webSocketListener, token); // Pass the listener
         webSocketClient.connectWebSocket();
 
         // display light information

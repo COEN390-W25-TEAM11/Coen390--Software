@@ -2,6 +2,8 @@ package api;
 
 import android.util.Log;
 
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -14,17 +16,22 @@ public class WebSocketClient {
     private WebSocket webSocket;
     private OkHttpClient client;
     private WebSocketListener listener;
-    private final String URL = "wss://c683-138-229-30-132.ngrok-free.app/websockets"; // wss://[ngrok link]/websockets
+    private final String URL = "wss://1990-138-229-30-132.ngrok-free.app/Notification/ws"; // wss://[ngrok link]/Notification/ws
+    String token;
 
-    public WebSocketClient(WebSocketListener listener) {
+    public WebSocketClient(WebSocketListener listener, String token) {
         this.listener = listener;
+        this.token = token;
     }
 
     public void connectWebSocket() {
-        client = new OkHttpClient();
+        client = new OkHttpClient.Builder()
+                //.pingInterval(30, TimeUnit.SECONDS) // Keep connection alive
+                .build();
 
         Request request = new Request.Builder()
                 .url(URL)
+                .addHeader("Authorization", "Bearer " + token) // Send JWT token
                 .build();
 
         webSocket = client.newWebSocket(request, listener);
