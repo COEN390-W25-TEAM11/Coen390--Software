@@ -20,13 +20,13 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
     <EditText
-        android:id="@+id/email"
+        android:id="@+id/username"
         android:layout_width="360dp"
         android:layout_height="60dp"
         android:layout_marginTop="200dp"
-        android:autofillHints="emailAddress"
-        android:hint="@string/enter_email"
-        android:inputType="textEmailAddress"
+        android:autofillHints="username"
+        android:hint="@string/enter_username"
+        android:inputType="text"
         android:textColorHint="#546E7A"
         android:textColorLink="#000000"
         app:layout_constraintEnd_toEndOf="parent"
@@ -48,7 +48,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.509"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/email" />
+        app:layout_constraintTop_toBottomOf="@+id/username" />
 
     <Button
         android:id="@+id/login_button"

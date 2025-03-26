@@ -12,4 +12,12 @@
     <string name="backtomain">backtomain</string>
     <string name="save_preset">Save Preset</string>
     <string name="receive_notifications">Receive Notifications</string>
+    <string name="enter_username">Enter Username</string>
+    <string name="new_light">New Light</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="enter_light_name">Enter light name</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="click_to_override">Click to Override</string>
 </resources>
