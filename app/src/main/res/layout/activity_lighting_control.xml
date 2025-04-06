@@ -1,65 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/linearLayout2"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF">
 
-    <Button
-        android:id="@+id/newLightButton"
-        android:layout_width="140dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="20dp"
-        android:text="@string/new_light"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toStartOf="@+id/motionLogsButton"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/helloUser" />
-
-    <Button
-        android:id="@+id/motionLogsButton"
-        android:layout_width="140dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="20dp"
-        android:text="@string/motion_logs"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/newLightButton"
-        app:layout_constraintTop_toBottomOf="@+id/helloUser" />
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar2"
-        android:layout_width="0dp"
+    <!-- Material Toolbar -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:background="?attr/colorPrimary">
 
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBarDashboard"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIconTint="@android:color/white"
+            app:titleTextColor="@android:color/white"
+            app:menu="@menu/dashboard"
+            app:title="Dashboard"/>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Welcome Message -->
     <TextView
         android:id="@+id/helloUser"
-        android:layout_width="377dp"
-        android:layout_height="49dp"
-        android:layout_marginTop="10dp"
-        android:textSize="34sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar2" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="24dp"
+        android:textSize="20sp"
+        android:textStyle="bold"/>
 
+    <!-- Menu Options -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginHorizontal="24dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/addLightText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="• Add a new light"
+            android:textSize="16sp"
+            android:layout_marginBottom="16dp"
+            android:clickable="true"
+            android:textColor="#6200EE"/>
+
+        <TextView
+            android:id="@+id/myAccountText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="• My Account"
+            android:textSize="16sp"
+            android:clickable="true"
+            android:textColor="#6200EE"/>
+    </LinearLayout>
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="24dp"
+        android:background="#E0E0E0"/>
+
+    <!-- Lights Section Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="24dp"
+        android:text="Click on a light below to control it"
+        android:textSize="16sp"/>
+
+    <!-- Lights List -->
     <ListView
         android:id="@+id/listView"
-        android:layout_width="409dp"
-        android:layout_height="522dp"
-        android:layout_marginTop="24dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/motionLogsButton" />
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="24dp"
+        android:divider="#E0E0E0"
+        android:dividerHeight="1dp"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
