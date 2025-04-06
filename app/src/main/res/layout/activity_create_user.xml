@@ -7,6 +7,14 @@
     android:padding="24dp"
     android:background="#FFFFFF">
 
+    <!-- Toolbar for Back Arrow -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
     <!-- Title -->
     <TextView
         android:layout_width="match_parent"
