@@ -2,35 +2,30 @@ package com.example.lightingcontrol;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import com.auth0.android.jwt.JWT;
+import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import api.LightService;
 import api.RetrofitClient;
-import api.WebSocketClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class LightingControlActivity extends AppCompatActivity implements CreateLightFragment.RefreshAfterSave, AdapterView.OnItemClickListener {
+public class LightingControlActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     protected SharedPreferencesHelper sharedPreferencesHelper;
     private LightService lightService;
@@ -42,79 +37,77 @@ public class LightingControlActivity extends AppCompatActivity implements Create
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lighting_control);
 
-        // setup toolbar
-        Toolbar toolbar = findViewById(R.id.toolbar2);
+        // Initialize MaterialToolbar
+        MaterialToolbar toolbar = findViewById(R.id.topAppBarDashboard);
         setSupportActionBar(toolbar);
-        Objects.requireNonNull(getSupportActionBar()).setTitle("Lighting Control");
 
-        // set up UI elements
-        Button motionLogsBtn = findViewById(R.id.motionLogsButton);
-        Button newLightBtn = findViewById(R.id.newLightButton);
+        // Configure toolbar with white back arrow and title
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            toolbar.setNavigationIconTint(getResources().getColor(android.R.color.white));
+            toolbar.setTitleTextColor(getResources().getColor(android.R.color.white));
+        }
+
+        // Initialize views
         TextView helloUser = findViewById(R.id.helloUser);
+        TextView addLightText = findViewById(R.id.addLightText);
+        TextView myAccountText = findViewById(R.id.myAccountText);
         listView = findViewById(R.id.listView);
-        listView.setOnItemClickListener(this); // make clickable
+        listView.setOnItemClickListener(this);
 
-        // get JWT token
+        // Set click listeners for menu items
+        addLightText.setOnClickListener(v -> onAddLightClick());
+        myAccountText.setOnClickListener(v -> onMyAccountClick());
+
+        // Get JWT token
         sharedPreferencesHelper = new SharedPreferencesHelper(this);
         String token = sharedPreferencesHelper.getToken();
 
-        // initialize retrofit and lightservice
+        // Initialize retrofit and lightservice
         Retrofit retrofit = RetrofitClient.getRetrofit(token);
         lightService = retrofit.create(LightService.class);
 
-        // setup hello user header
+        // Setup hello user header
         if (token != null) {
             JWT jwt = new JWT(token);
             String username = jwt.getClaim("sub").asString();
-
-            if (username != null) {
-                helloUser.setText("Hello " + username + "!");
-            } else {
-                helloUser.setText("Hello User!"); // Fallback in case username is null
-            }
+            helloUser.setText(username != null ? "Hello " + username + "!" : "Hello User!");
         } else {
             helloUser.setText("Hello Guest!");
         }
 
-        // fetch lights from API endpoint
+        // Fetch lights from API endpoint
         fetchLights();
-
-        // when new light button is clicked, open create light fragment
-        newLightBtn.setOnClickListener(v -> {
-            CreateLightFragment createLightFragment = new CreateLightFragment();
-            createLightFragment.setRefreshAfterSave(LightingControlActivity.this);
-            createLightFragment.show(getSupportFragmentManager(), "createLightFragment");
-        });
-
-        // when motion logs button is clicked, open motion logs activity
-        motionLogsBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(LightingControlActivity.this, MotionLogsActivity.class));
-            }
-        });
-
     }
 
-    // show the toolbar
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar, menu);
-        return true;
-    }
-
-    // functionalities for toolbar button (return)
+    // Handle back button click
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.backtomain) {
-            Intent mainIntent = new Intent(this, MainActivity.class);
-            startActivity(mainIntent);
+        if (item.getItemId() == android.R.id.home) {
+            // Navigate back to LoginActivity instead of finishing
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    // make request to endpoint to get lights
+    // Handle "Add a new light" click
+    private void onAddLightClick() {
+        CreateLightFragment createLightFragment = new CreateLightFragment();
+        createLightFragment.setRefreshAfterSave(() -> fetchLights());
+        createLightFragment.show(getSupportFragmentManager(), "createLightFragment");
+    }
+
+    // Handle "My Account" click
+    private void onMyAccountClick() {
+        Toast.makeText(this, "My Account clicked", Toast.LENGTH_SHORT).show();
+        // Implement account management here
+    }
+
+    // Fetch lights from API
     private void fetchLights() {
         Call<List<LightService.LightResponse>> call = lightService.getLights();
         call.enqueue(new Callback<List<LightService.LightResponse>>() {
@@ -135,47 +128,27 @@ public class LightingControlActivity extends AppCompatActivity implements Create
         });
     }
 
-    // update UI, reload listview with any added light(s)
+    // Load lights into ListView
     private void loadListView() {
         if (lights != null && listView != null) {
             List<String> lightNames = new ArrayList<>();
             for (LightService.LightResponse light : lights) {
-                lightNames.add(light.getName() + " (ID: " + light.getId() + ")");
+                lightNames.add("• " + light.getName());
             }
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, lightNames);
             listView.setAdapter(adapter);
-        } else {
-            Toast.makeText(LightingControlActivity.this, "Failed to load lights", Toast.LENGTH_SHORT).show();
         }
     }
 
-    // re fetch the lights
-    @Override
-    public void refreshList() {
-        fetchLights();
-    }
-
-    // functionality for when an entry in the listView is clicked
+    // Handle light item click
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-        Intent specificLightIntent = new Intent(this, SpecificLightActivity.class);
-
-        // save the light Id of the entry that needs to be opened
-        String clickedLight = (String) parent.getItemAtPosition(position);
-        String lightIdToSend = clickedLight.substring(clickedLight.indexOf(":") + 2, clickedLight.indexOf(")")); // get ID, in between colon and parentheses
-        String lightNameToSend = clickedLight.substring(0, clickedLight.indexOf("("));
-
-        Log.d("lightToSend: ", lightIdToSend);
-        Log.d("lightNameToSend: ", lightNameToSend);
-
-        // pass light to SpecificLightActivity
-        if (lightIdToSend != null && lightNameToSend != null) {
-            specificLightIntent.putExtra("lightId", lightIdToSend);
-            specificLightIntent.putExtra("lightName", lightNameToSend);
-
-            // go to SpecificLightActivity
-            startActivity(specificLightIntent);
+        if (lights != null && position < lights.size()) {
+            LightService.LightResponse light = lights.get(position);
+            Intent intent = new Intent(this, SpecificLightActivity.class);
+            intent.putExtra("lightId", light.getId());
+            intent.putExtra("lightName", light.getName());
+            startActivity(intent);
         }
     }
 }

@@ -8,40 +8,14 @@ public interface AuthService {
 
     // Endpoint for logging in
     @POST("Auth/login")
-    Call<AuthService.LoginResponse> login(@Body UserLogin user);
+    Call<LoginResponse> login(@Body UserLogin user);
 
-    // Endpoint for registering (NOT IMPLEMENTED YET)
+    // Endpoint for registering
     @POST("Auth/register")
-    Call<AuthService.LoginResponse> register(@Body UserLogin user);
+    Call<Void> register(@Body UserLogin user);
 
-    // UserLogin class
-    class UserLogin {
-        private String username;
-        private String password;
 
-        public UserLogin(String username, String password) {
-            this.username = username;
-            this.password = password;
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setUsername(String username) {
-            this.username = username;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
-    }
-
-    // Response to a user login
+    // Response class for login/registration
     class LoginResponse {
         private String token; // JWT token
 
@@ -51,6 +25,25 @@ public interface AuthService {
 
         public void setToken(String token) {
             this.token = token;
+        }
+    }
+
+    // Request class for login/registration
+    class UserLogin {
+        private String Username;
+        private String Password;
+
+        public UserLogin(String username, String password) {
+            this.Username = username;
+            this.Password = password;
+        }
+
+        public String getUsername() {
+            return Username;
+        }
+
+        public String getPassword() {
+            return Password;
         }
     }
 }
