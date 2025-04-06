@@ -22,22 +22,4 @@ public class PresetActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setTitle("Presets");
     }
-
-    // show the toolbar
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.toolbar, menu);
-//        return true;
-//    }
-
-    // functionalities for toolbar button (return)
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        if (item.getItemId() == R.id.backtomain) {
-//            Intent lightIntent = new Intent(this, LightingControlActivity.class);
-//            startActivity(lightIntent);
-//            return true;
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
 }
