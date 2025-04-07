@@ -26,7 +26,6 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 public class LightingControlActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
-
     protected SharedPreferencesHelper sharedPreferencesHelper;
     private LightService lightService;
     private List<LightService.LightResponse> lights;
@@ -80,7 +79,6 @@ public class LightingControlActivity extends AppCompatActivity implements Adapte
         fetchLights();
     }
 
-    // Handle back button click
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
@@ -94,20 +92,29 @@ public class LightingControlActivity extends AppCompatActivity implements Adapte
         return super.onOptionsItemSelected(item);
     }
 
-    // Handle "Add a new light" click
     private void onAddLightClick() {
         CreateLightFragment createLightFragment = new CreateLightFragment();
         createLightFragment.setRefreshAfterSave(() -> fetchLights());
         createLightFragment.show(getSupportFragmentManager(), "createLightFragment");
     }
 
-    // Handle "My Account" click
     private void onMyAccountClick() {
-        Toast.makeText(this, "My Account clicked", Toast.LENGTH_SHORT).show();
-        // Implement account management here
+        // Navigate to AccountActivity
+        Intent intent = new Intent(this, AccountActivity.class);
+
+        // Pass the username if available
+        String token = sharedPreferencesHelper.getToken();
+        if (token != null) {
+            JWT jwt = new JWT(token);
+            String username = jwt.getClaim("sub").asString();
+            if (username != null) {
+                intent.putExtra("username", username);
+            }
+        }
+
+        startActivity(intent);
     }
 
-    // Fetch lights from API
     private void fetchLights() {
         Call<List<LightService.LightResponse>> call = lightService.getLights();
         call.enqueue(new Callback<List<LightService.LightResponse>>() {
@@ -128,7 +135,6 @@ public class LightingControlActivity extends AppCompatActivity implements Adapte
         });
     }
 
-    // Load lights into ListView
     private void loadListView() {
         if (lights != null && listView != null) {
             List<String> lightNames = new ArrayList<>();
@@ -140,7 +146,6 @@ public class LightingControlActivity extends AppCompatActivity implements Adapte
         }
     }
 
-    // Handle light item click
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (lights != null && position < lights.size()) {

@@ -16,7 +16,7 @@ public class WebSocketClient {
     private WebSocket webSocket;
     private OkHttpClient client;
     private WebSocketListener listener;
-    private final String URL = "wss://a218-76-71-164-56.ngrok-free.app/Notification/ws"; // wss://[ngrok link]/Notification/ws
+    private final String URL = "wss://89de-70-26-191-150.ngrok-free.app/Notification/ws"; // wss://[ngrok link]/Notification/ws
     String token;
 
     public WebSocketClient(WebSocketListener listener, String token) {
