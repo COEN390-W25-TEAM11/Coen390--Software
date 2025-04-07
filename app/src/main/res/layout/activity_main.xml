@@ -35,16 +35,33 @@
         android:textSize="16sp"
         android:layout_marginTop="24dp"/>
 
-    <EditText
-        android:id="@+id/password"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/edittext_border"
+    android:padding="12dp">
+
+    <EditText
+        android:id="@+id/password"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toLeftOf="@+id/togglePasswordButton"
         android:inputType="textPassword"
-        android:padding="12dp"
-        android:textColor="#000000"
-        android:textColorHint="#999999"/>
+        android:background="@null"
+    android:textColor="#000000"
+    android:textColorHint="#999999"/>
+
+    <ImageButton
+        android:id="@+id/togglePasswordButton"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_visibility_off"
+        android:tint="#6200EE"/>
+</RelativeLayout>
 
     <!-- Login Button -->
     <Button
@@ -80,5 +97,4 @@
             android:textColor="#6200EE"
             android:textStyle="bold"/>
     </LinearLayout>
-
 </LinearLayout>

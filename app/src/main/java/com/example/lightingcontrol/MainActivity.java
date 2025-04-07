@@ -2,16 +2,17 @@ package com.example.lightingcontrol;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.text.method.LinkMovementMethod;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
-import java.util.Objects;
 
 import api.AuthService;
 import api.RetrofitClient;
@@ -24,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
 
     protected SharedPreferencesHelper sharedPreferenceHelper;
     private EditText username, password;
+    private ImageButton togglePasswordButton;
+    private boolean isPasswordVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,10 +36,24 @@ public class MainActivity extends AppCompatActivity {
         // Initialize UI elements
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);
+        togglePasswordButton = findViewById(R.id.togglePasswordButton);
         Button loginBtn = findViewById(R.id.login_button);
 
         // Initialize shared preferences
         sharedPreferenceHelper = new SharedPreferencesHelper(MainActivity.this);
+
+        // Password visibility toggle
+        togglePasswordButton.setOnClickListener(v -> {
+            if (isPasswordVisible) {
+                password.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                togglePasswordButton.setImageResource(R.drawable.ic_visibility_off);
+            } else {
+                password.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                togglePasswordButton.setImageResource(R.drawable.ic_visibility);
+            }
+            isPasswordVisible = !isPasswordVisible;
+            password.setSelection(password.getText().length());
+        });
 
         // Initialize retrofit and authservice
         Retrofit retrofit = RetrofitClient.getUnauthenticatedRetrofit();
