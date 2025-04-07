@@ -63,4 +63,8 @@ public class SharedPreferencesHelper {
     public String getUsername() {
         return getTokenValue("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name");
     }
+
+    public String getUserType() {
+        return getTokenValue("http://schemas.microsoft.com/ws/2008/06/identity/claims/role");
+    }
 }

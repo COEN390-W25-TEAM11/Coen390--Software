@@ -2,6 +2,7 @@ package api;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
 
 public interface AuthService {
@@ -16,6 +17,12 @@ public interface AuthService {
 
     @POST("Auth/change-password")
     Call<Void> changePassword(@Body ChangePasswordRequest request);
+
+    @GET("Auth/list-users")
+    Call<UserItem[]> listUsers();
+
+    @POST("Auth/modify-user")
+    Call<Void> modifyUser(@Body ModifyUser request);
 
     // Response class for login/registration
     class LoginResponse {
@@ -49,11 +56,30 @@ public interface AuthService {
         }
     }
 
-    class  ChangePasswordRequest {
+    class ChangePasswordRequest {
         private String newPassword;
 
         public ChangePasswordRequest(String newPassword) {
             this.newPassword = newPassword;
+        }
+    }
+
+    class UserItem {
+        public String userId;
+        public String username;
+        public boolean isEnabled;
+        public boolean isAdmin;
+    }
+
+    class ModifyUser {
+        public String userId;
+        public boolean isEnabled;
+        public boolean isAdmin;
+
+        public ModifyUser(String userId, boolean isEnabled, boolean isAdmin) {
+            this.userId = userId;
+            this.isEnabled = isEnabled;
+            this.isAdmin = isAdmin;
         }
     }
 }

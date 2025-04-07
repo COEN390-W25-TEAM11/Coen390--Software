@@ -17,8 +17,8 @@ import com.example.lightingcontrol.SharedPreferencesHelper;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
-import java.util.ArrayList;
-import java.util.HashMap;
+
+import java.util.Arrays;
 import java.util.List;
 
 import api.AuthService;
@@ -37,7 +37,7 @@ public class AccountActivity extends AppCompatActivity {
     private MaterialButton changePasswordButton;
 
     // Data
-    private List<HashMap<String, Object>> accountList;
+    private List<AuthService.UserItem> accountList;
     private AccountsAdapter adapter;
 
     @Override
@@ -89,13 +89,13 @@ public class AccountActivity extends AppCompatActivity {
                             if (response.isSuccessful()) {
                                 Toast.makeText(AccountActivity.this, "Change password successful!", Toast.LENGTH_SHORT).show();
                             } else {
-                                Toast.makeText(AccountActivity.this, "Could not change passowrd!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(AccountActivity.this, "Could not change password!", Toast.LENGTH_SHORT).show();
                             }
                         }
 
                         @Override
                         public void onFailure(Call<Void> call, Throwable t) {
-                            Toast.makeText(AccountActivity.this, "Could not change passowrd!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(AccountActivity.this, "Could not change password!", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -106,18 +106,28 @@ public class AccountActivity extends AppCompatActivity {
 
     private void initializeAccountsList() {
         accountsListView = findViewById(R.id.accountsListView);
-        accountList = new ArrayList<>();
 
-        // Add 5 child accounts
-        for (int i = 1; i <= 5; i++) {
-            HashMap<String, Object> account = new HashMap<>();
-            account.put("name", "ChildAccount" + i);
-            account.put("active", false);
-            accountList.add(account);
-        }
+        AuthService authService = retrofit.create(AuthService.class);
+        Call<AuthService.UserItem[]> call = authService.listUsers();
 
-        adapter = new AccountsAdapter();
-        accountsListView.setAdapter(adapter);
+        call.enqueue(new Callback<AuthService.UserItem[]>() {
+            @Override
+            public void onResponse(Call<AuthService.UserItem[]> call, Response<AuthService.UserItem[]> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    accountList = Arrays.asList(response.body());
+
+                    adapter = new AccountsAdapter();
+                    accountsListView.setAdapter(adapter);
+                } else {
+                    Toast.makeText(AccountActivity.this, "Could not load user list", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<AuthService.UserItem[]> call, Throwable t) {
+                Toast.makeText(AccountActivity.this, "Could not load user list", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -136,13 +146,14 @@ public class AccountActivity extends AppCompatActivity {
         }
 
         @Override
-        public Object getItem(int position) {
+        public AuthService.UserItem getItem(int position) {
             return accountList.get(position);
         }
 
         @Override
         public long getItemId(int position) {
             return position;
+//            return getItem(position).userId;
         }
 
         @Override
@@ -162,20 +173,35 @@ public class AccountActivity extends AppCompatActivity {
                 holder = (ViewHolder) convertView.getTag();
             }
 
-            final HashMap<String, Object> account = accountList.get(position);
-            holder.accountName.setText((String) account.get("name"));
-            holder.accountSwitch.setChecked((Boolean) account.get("active"));
+            final AuthService.UserItem account = accountList.get(position);
+
+            holder.accountName.setText((String) account.username);
+            holder.accountSwitch.setChecked((Boolean) account.isEnabled);
 
             // Remove previous listener to avoid recycling issues
             holder.accountSwitch.setOnCheckedChangeListener(null);
 
             // Set new listener
+            holder.accountSwitch.setEnabled(!account.username.equals(sharedPreferencesHelper.getUsername()));
             holder.accountSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                account.put("active", isChecked);
-                String status = isChecked ? "activated" : "deactivated";
-                Toast.makeText(AccountActivity.this,
-                        account.get("name") + " " + status,
-                        Toast.LENGTH_SHORT).show();
+                account.isEnabled = isChecked;
+
+                AuthService authService = retrofit.create(AuthService.class);
+                Call<Void> call = authService.modifyUser(new AuthService.ModifyUser(account.userId, account.isEnabled, account.isAdmin));
+
+                call.enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> response) {
+                        if (!response.isSuccessful()) {
+                            Toast.makeText(AccountActivity.this, "Could edit user permissions", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+                        Toast.makeText(AccountActivity.this, "Could edit user permissions", Toast.LENGTH_SHORT).show();
+                    }
+                });
             });
 
             return convertView;
