@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.auth0.android.jwt.JWT;
+import com.example.lightingcontrol.account.AccountActivity;
 import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.ArrayList;

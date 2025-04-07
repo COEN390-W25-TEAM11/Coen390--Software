@@ -14,6 +14,8 @@ public interface AuthService {
     @POST("Auth/register")
     Call<Void> register(@Body UserLogin user);
 
+    @POST("Auth/change-password")
+    Call<Void> changePassword(@Body ChangePasswordRequest request);
 
     // Response class for login/registration
     class LoginResponse {
@@ -44,6 +46,14 @@ public interface AuthService {
 
         public String getPassword() {
             return Password;
+        }
+    }
+
+    class  ChangePasswordRequest {
+        private String newPassword;
+
+        public ChangePasswordRequest(String newPassword) {
+            this.newPassword = newPassword;
         }
     }
 }

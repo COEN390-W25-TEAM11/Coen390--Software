@@ -1,4 +1,4 @@
-package com.example.lightingcontrol;
+package com.example.lightingcontrol.account;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,6 +11,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.lightingcontrol.R;
+import com.example.lightingcontrol.SharedPreferencesHelper;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -18,7 +21,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import api.AuthService;
+import api.RetrofitClient;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+
 public class AccountActivity extends AppCompatActivity {
+
+    private SharedPreferencesHelper sharedPreferencesHelper;
+    private Retrofit retrofit;
 
     // UI Components
     private TextView passwordText;
@@ -36,6 +49,9 @@ public class AccountActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
+
+        sharedPreferencesHelper = new SharedPreferencesHelper(this);
+        retrofit = RetrofitClient.getRetrofit(sharedPreferencesHelper.getToken());
 
         initializeToolbar();
         initializePasswordViews();
@@ -64,8 +80,33 @@ public class AccountActivity extends AppCompatActivity {
         changePasswordButton = findViewById(R.id.changePasswordButton);
         changePasswordButton.setOnClickListener(v -> {
             // Show the black dialog when button is pressed
-            ChangePasswordFragment.newInstance()
-                    .show(getSupportFragmentManager(), "ChangePasswordDialog");
+            var changePasswordFragment = ChangePasswordFragment.newInstance();
+
+            changePasswordFragment.setPasswordChangeListener(new ChangePasswordFragment.PasswordChangeListener() {
+                @Override
+                public void onPasswordChanged(String newPassword) {
+                    AuthService authService = retrofit.create(AuthService.class);
+                    AuthService.ChangePasswordRequest request = new AuthService.ChangePasswordRequest(newPassword);
+                    Call<Void> call = authService.changePassword(request);
+
+                    call.enqueue(new Callback<Void>() {
+                        @Override
+                        public void onResponse(Call<Void> call, Response<Void> response) {
+                            if (response.isSuccessful()) {
+                                Toast.makeText(AccountActivity.this, "Change password successful!", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(AccountActivity.this, "Could not change passowrd!", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<Void> call, Throwable t) {
+                            Toast.makeText(AccountActivity.this, "Could not change passowrd!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
+            changePasswordFragment.show(getSupportFragmentManager(), "ChangePasswordDialog");
         });
     }
 

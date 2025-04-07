@@ -17,7 +17,7 @@
         android:theme="@style/Theme.Lightingcontrol"
         tools:targetApi="31">
         <activity
-            android:name=".AccountActivity"
+            android:name=".account.AccountActivity"
             android:exported="false" />
         <activity
             android:name=".CreateUser"
