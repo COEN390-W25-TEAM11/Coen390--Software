@@ -3,6 +3,8 @@ package com.example.lightingcontrol;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.Base64;
+
 public class SharedPreferencesHelper {
 
     // SHARED PREFERENCES SAVES: JWT token, light to open on SpecificLightActivity
@@ -32,16 +34,33 @@ public class SharedPreferencesHelper {
         editor.apply();
     }
 
-    // save lightToOpen
-    public void saveLight(String lightId) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("lightId", lightId);
-        editor.apply();
+    private String getTokenPayload() {
+        String[] parts = getToken().split("\\.");
+        if (parts.length != 3) {
+            throw new IllegalArgumentException("Invalid JWT token format.");
+        }
+
+        return new String(Base64.getUrlDecoder().decode(parts[1]));
     }
 
-    // get JWT token
-    public String getLight() {
-        return sharedPreferences.getString("lightId", null);
+    private String getTokenValue(String key) {
+        String payloadJson = getTokenPayload();
+
+        String targetKey = "\"" + key + "\"";
+        int keyIndex = payloadJson.indexOf(targetKey);
+        if (keyIndex == -1) return null;
+
+        int colonIndex = payloadJson.indexOf(":", keyIndex + targetKey.length());
+        if (colonIndex == -1) return null;
+
+        int startQuote = payloadJson.indexOf("\"", colonIndex + 1);
+        int endQuote = payloadJson.indexOf("\"", startQuote + 1);
+        if (startQuote == -1 || endQuote == -1) return null;
+
+        return payloadJson.substring(startQuote + 1, endQuote);
     }
 
+    public String getUsername() {
+        return getTokenValue("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name");
+    }
 }

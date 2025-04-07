@@ -32,9 +32,6 @@ public class AccountActivity extends AppCompatActivity {
 
     private SharedPreferencesHelper sharedPreferencesHelper;
     private Retrofit retrofit;
-
-    // UI Components
-    private TextView passwordText;
     private ImageButton togglePasswordButton;
     private ListView accountsListView;
     private MaterialButton changePasswordButton;
@@ -42,8 +39,6 @@ public class AccountActivity extends AppCompatActivity {
     // Data
     private List<HashMap<String, Object>> accountList;
     private AccountsAdapter adapter;
-    private boolean isPasswordVisible = false;
-    private String currentPassword = "toor"; // Default password
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +49,7 @@ public class AccountActivity extends AppCompatActivity {
         retrofit = RetrofitClient.getRetrofit(sharedPreferencesHelper.getToken());
 
         initializeToolbar();
-        initializePasswordViews();
+        initializeUsernameText();
         initializeChangePasswordButton();
         initializeAccountsList();
     }
@@ -70,10 +65,9 @@ public class AccountActivity extends AppCompatActivity {
         }
     }
 
-    private void initializePasswordViews() {
-        passwordText = findViewById(R.id.passwordText);
-        togglePasswordButton = findViewById(R.id.togglePasswordButton);
-        togglePasswordButton.setOnClickListener(v -> togglePasswordVisibility());
+    private void initializeUsernameText() {
+        TextView usernameText = findViewById(R.id.usernameText);
+        usernameText.setText(sharedPreferencesHelper.getUsername());
     }
 
     private void initializeChangePasswordButton() {
@@ -124,22 +118,6 @@ public class AccountActivity extends AppCompatActivity {
 
         adapter = new AccountsAdapter();
         accountsListView.setAdapter(adapter);
-    }
-
-    private void togglePasswordVisibility() {
-        if (isPasswordVisible) {
-            // Create asterisks matching password length
-            StringBuilder masked = new StringBuilder();
-            for (int i = 0; i < currentPassword.length(); i++) {
-                masked.append("*");
-            }
-            passwordText.setText(masked.toString());
-            togglePasswordButton.setImageResource(R.drawable.ic_visibility_off);
-        } else {
-            passwordText.setText(currentPassword);
-            togglePasswordButton.setImageResource(R.drawable.ic_visibility);
-        }
-        isPasswordVisible = !isPasswordVisible;
     }
 
     @Override

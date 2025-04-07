@@ -65,43 +65,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
                     android:background="@drawable/edittext_border"
+                    android:enabled="false"
                     android:padding="12dp"
-                    android:text="root"
                     android:textSize="18sp" />
 
                 <!-- Password with visibility toggle -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Password"
-                    android:textSize="16sp" />
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="24dp"
-                    android:background="@drawable/edittext_border"
-                    android:padding="12dp">
-
-                    <TextView
-                        android:id="@+id/passwordText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentLeft="true"
-                        android:layout_centerVertical="true"
-                        android:layout_toLeftOf="@+id/togglePasswordButton"
-                        android:text="******"
-                        android:textSize="18sp" />
-
-                    <ImageButton
-                        android:id="@+id/togglePasswordButton"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_alignParentRight="true"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:src="@drawable/ic_visibility_off"
-                        android:tint="#6200EE" />
-                </RelativeLayout>
 
                 <!-- Change Password Button -->
                 <com.google.android.material.button.MaterialButton
