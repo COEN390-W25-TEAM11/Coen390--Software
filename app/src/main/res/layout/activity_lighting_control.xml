@@ -29,7 +29,7 @@
         android:id="@+id/helloUser"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginHorizontal="24dp"
         android:textSize="20sp"
         android:textStyle="bold"/>
@@ -38,7 +38,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:layout_marginHorizontal="24dp"
         android:orientation="vertical">
 
@@ -48,7 +48,7 @@
             android:layout_height="wrap_content"
             android:text="• Add a new combination"
             android:textSize="16sp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="8dp"
             android:clickable="true"
             android:textColor="#6200EE"/>
 
@@ -81,7 +81,7 @@
 
     <!-- Lights List -->
     <ListView
-        android:id="@+id/listView"
+        android:id="@+id/listView1"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -89,5 +89,25 @@
         android:layout_marginHorizontal="24dp"
         android:divider="#E0E0E0"
         android:dividerHeight="1dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="24dp"
+        android:text="Click on a combination to delete it"
+        android:textSize="16sp"/>
+
+    <!-- Lights List -->
+    <ListView
+        android:id="@+id/listView2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="24dp"
+        android:divider="#E0E0E0"
+        android:dividerHeight="1dp"
+        android:layout_marginBottom="16dp"/>
 
 </LinearLayout>

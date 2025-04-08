@@ -10,14 +10,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.auth0.android.jwt.JWT;
 import com.example.lightingcontrol.account.AccountActivity;
 import com.google.android.material.appbar.MaterialToolbar;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.LinkedList;
 
 import api.LightService;
 import api.RetrofitClient;
@@ -32,7 +33,8 @@ public class LightingControlActivity extends AppCompatActivity {
     private LightService lightService;
 
     // UI elements
-    private ListView listView;
+    private ListView lightAndSensorListView;
+    private ListView comboListView;
 
     // Data
     private LightService.GetResponse data;
@@ -57,8 +59,8 @@ public class LightingControlActivity extends AppCompatActivity {
         TextView helloUser = findViewById(R.id.helloUser);
         TextView addLightText = findViewById(R.id.addLightText);
         TextView myAccountText = findViewById(R.id.myAccountText);
-        listView = findViewById(R.id.listView);
-//        listView.setOnItemClickListener(this);
+        lightAndSensorListView = findViewById(R.id.listView1);
+        comboListView = findViewById(R.id.listView2);
 
         // Set click listeners for menu items
         addLightText.setOnClickListener(v -> onAddLightClick());
@@ -75,6 +77,7 @@ public class LightingControlActivity extends AppCompatActivity {
         helloUser.setText(username != null ? "Hello " + username + "!" : "Hello User!");
 
         loadData();
+        initListViews();
     }
 
     @Override
@@ -88,6 +91,50 @@ public class LightingControlActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void initListViews() {
+        lightAndSensorListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                var item = (KeyValueItem) parent.getItemAtPosition(position);
+
+                Toast.makeText(LightingControlActivity.this, item.type + item.name, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        comboListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                var item = (ComboItem) parent.getItemAtPosition(position);
+
+                new AlertDialog.Builder(LightingControlActivity.this)
+                        .setTitle("Confirm")
+                        .setMessage("Are you sure you want to delete this combination?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            Call<Void> call = lightService.deleteAssign(item.id);
+
+                            call.enqueue(new Callback<Void>() {
+                                @Override
+                                public void onResponse(Call<Void> call, Response<Void> response) {
+                                    if (!response.isSuccessful()) {
+                                        Toast.makeText(LightingControlActivity.this, "The combination could not be deleted", Toast.LENGTH_SHORT).show();
+                                    }
+                                    loadData();
+                                }
+
+                                @Override
+                                public void onFailure(Call<Void> call, Throwable t) {
+                                    Toast.makeText(LightingControlActivity.this, "The combination could not be deleted", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        })
+                        .setNegativeButton("No", (dialog, which) -> {
+                        })
+                        .show();
+
+            }
+        });
     }
 
     private void loadData() {
@@ -112,10 +159,29 @@ public class LightingControlActivity extends AppCompatActivity {
     }
 
     private void updateListView() {
-        ArrayAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new String[]{"Android", "IPhone", "WindowsMobile", "Blackberry",
-                "WebOS", "Ubuntu", "Windows7", "Max OS X"});
+        LinkedList<KeyValueItem> lightAndSensorList = new LinkedList<>();
 
-        listView.setAdapter(adapter);
+        for (var e : this.data.lights) {
+            lightAndSensorList.add(new KeyValueItem("Light", e.id, e.name));
+        }
+
+        for (var e : this.data.sensors) {
+            lightAndSensorList.add(new KeyValueItem("Sensor", e.id, e.name));
+        }
+
+        lightAndSensorListView.setAdapter(new ArrayAdapter<>(this, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, lightAndSensorList));
+
+        LinkedList<ComboItem> comboList = new LinkedList<>();
+
+        for (var e : this.data.combinations) {
+            comboList.add(new ComboItem(
+                    e.id,
+                    lightAndSensorList.stream().filter(item -> item.id.equals(e.lightId)).findFirst().get().name,
+                    lightAndSensorList.stream().filter(item -> item.id.equals(e.sensorId)).findFirst().get().name
+            ));
+        }
+
+        comboListView.setAdapter(new ArrayAdapter<>(this, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, comboList));
     }
 
     private void onAddLightClick() {
@@ -129,5 +195,41 @@ public class LightingControlActivity extends AppCompatActivity {
         // Navigate to AccountActivity
         Intent intent = new Intent(this, AccountActivity.class);
         startActivity(intent);
+    }
+
+    private static class KeyValueItem {
+        public String type;
+        public String id;
+        public String name;
+
+        public KeyValueItem(String type, String id, String name) {
+            this.type = type;
+            this.id = id;
+            this.name = name;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return type + ": " + name;
+        }
+    }
+
+    private static class ComboItem {
+        public String id;
+        public String lightName;
+        public String sensorName;
+
+        public ComboItem(String id, String lightName, String sensorName) {
+            this.id = id;
+            this.lightName = lightName;
+            this.sensorName = sensorName;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return lightName + " and " + sensorName;
+        }
     }
 }
