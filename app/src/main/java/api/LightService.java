@@ -14,7 +14,7 @@ import retrofit2.http.Path;
 public interface LightService {
 
     @GET("/Api")
-    Call<Void> get();
+    Call<GetResponse> get();
 
     class GetResponse {
         public LightResponse[] lights;

@@ -46,7 +46,7 @@
             android:id="@+id/addLightText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="• Add a new light"
+            android:text="• Add a new combination"
             android:textSize="16sp"
             android:layout_marginBottom="16dp"
             android:clickable="true"
@@ -76,7 +76,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginHorizontal="24dp"
-        android:text="Click on a light below to control it"
+        android:text="Click on a light or sensor below to control it"
         android:textSize="16sp"/>
 
     <!-- Lights List -->

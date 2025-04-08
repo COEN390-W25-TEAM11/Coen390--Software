@@ -26,11 +26,16 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class LightingControlActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+public class LightingControlActivity extends AppCompatActivity {
+    // Services and helpers
     protected SharedPreferencesHelper sharedPreferencesHelper;
     private LightService lightService;
-    private List<LightService.LightResponse> lights;
+
+    // UI elements
     private ListView listView;
+
+    // Data
+    private LightService.GetResponse data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +58,7 @@ public class LightingControlActivity extends AppCompatActivity implements Adapte
         TextView addLightText = findViewById(R.id.addLightText);
         TextView myAccountText = findViewById(R.id.myAccountText);
         listView = findViewById(R.id.listView);
-        listView.setOnItemClickListener(this);
+//        listView.setOnItemClickListener(this);
 
         // Set click listeners for menu items
         addLightText.setOnClickListener(v -> onAddLightClick());
@@ -61,23 +66,15 @@ public class LightingControlActivity extends AppCompatActivity implements Adapte
 
         // Get JWT token
         sharedPreferencesHelper = new SharedPreferencesHelper(this);
-        String token = sharedPreferencesHelper.getToken();
 
         // Initialize retrofit and lightservice
-        Retrofit retrofit = RetrofitClient.getRetrofit(token);
+        Retrofit retrofit = RetrofitClient.getRetrofit(sharedPreferencesHelper.getToken());
         lightService = retrofit.create(LightService.class);
 
-        // Setup hello user header
-        if (token != null) {
-            JWT jwt = new JWT(token);
-            String username = jwt.getClaim("sub").asString();
-            helloUser.setText(username != null ? "Hello " + username + "!" : "Hello User!");
-        } else {
-            helloUser.setText("Hello Guest!");
-        }
+        String username = sharedPreferencesHelper.getUsername();
+        helloUser.setText(username != null ? "Hello " + username + "!" : "Hello User!");
 
-        // Fetch lights from API endpoint
-        fetchLights();
+        loadData();
     }
 
     @Override
@@ -93,68 +90,43 @@ public class LightingControlActivity extends AppCompatActivity implements Adapte
         return super.onOptionsItemSelected(item);
     }
 
+    private void loadData() {
+        Call<LightService.GetResponse> call = lightService.get();
+        call.enqueue(new Callback<LightService.GetResponse>() {
+
+            @Override
+            public void onResponse(Call<LightService.GetResponse> call, Response<LightService.GetResponse> response) {
+                if (response.isSuccessful()) {
+                    data = response.body();
+                    updateListView();
+                } else {
+                    Toast.makeText(LightingControlActivity.this, "Failed to load data", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LightService.GetResponse> call, Throwable t) {
+                Toast.makeText(LightingControlActivity.this, "Failed to load data", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void updateListView() {
+        ArrayAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new String[]{"Android", "IPhone", "WindowsMobile", "Blackberry",
+                "WebOS", "Ubuntu", "Windows7", "Max OS X"});
+
+        listView.setAdapter(adapter);
+    }
+
     private void onAddLightClick() {
         CreateLightFragment createLightFragment = new CreateLightFragment();
-        createLightFragment.setRefreshAfterSave(() -> fetchLights());
+        createLightFragment.setRefreshAfterSave(this::loadData);
         createLightFragment.show(getSupportFragmentManager(), "createLightFragment");
     }
 
     private void onMyAccountClick() {
         // Navigate to AccountActivity
         Intent intent = new Intent(this, AccountActivity.class);
-
-        // Pass the username if available
-        String token = sharedPreferencesHelper.getToken();
-        if (token != null) {
-            JWT jwt = new JWT(token);
-            String username = jwt.getClaim("sub").asString();
-            if (username != null) {
-                intent.putExtra("username", username);
-            }
-        }
-
         startActivity(intent);
-    }
-
-    private void fetchLights() {
-        Call<List<LightService.LightResponse>> call = lightService.getLights();
-        call.enqueue(new Callback<List<LightService.LightResponse>>() {
-            @Override
-            public void onResponse(Call<List<LightService.LightResponse>> call, Response<List<LightService.LightResponse>> response) {
-                if (response.isSuccessful()) {
-                    lights = response.body();
-                    loadListView();
-                } else {
-                    Toast.makeText(LightingControlActivity.this, "Failed to load lights", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<LightService.LightResponse>> call, Throwable t) {
-                Toast.makeText(LightingControlActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void loadListView() {
-        if (lights != null && listView != null) {
-            List<String> lightNames = new ArrayList<>();
-            for (LightService.LightResponse light : lights) {
-                lightNames.add("• " + light.getName());
-            }
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, lightNames);
-            listView.setAdapter(adapter);
-        }
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (lights != null && position < lights.size()) {
-            LightService.LightResponse light = lights.get(position);
-            Intent intent = new Intent(this, SpecificLightActivity.class);
-            intent.putExtra("lightId", light.getId());
-            intent.putExtra("lightName", light.getName());
-            startActivity(intent);
-        }
     }
 }
