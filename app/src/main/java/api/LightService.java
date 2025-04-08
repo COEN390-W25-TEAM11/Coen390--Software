@@ -2,6 +2,7 @@ package api;
 
 import androidx.annotation.NonNull;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,9 +25,13 @@ public interface LightService {
         public CombinationResponse[] combinations;
 
 
-        public static class LightResponse {
+        public static class LightResponse implements Serializable {
             public String id;
             public String name;
+            public int pin;
+            public boolean overide;
+            public int state;
+            public int brightness;
 
             @NonNull
             @Override
@@ -35,9 +40,12 @@ public interface LightService {
             }
         }
 
-        public static class SensorResponse {
+        public static class SensorResponse implements Serializable {
             public String id;
             public String name;
+            public int pin;
+            public int sensitivity;
+            public int timeout;
             public MotionResponse[] motion;
 
             @Override
@@ -46,7 +54,7 @@ public interface LightService {
             }
         }
 
-        public static class MotionResponse {
+        public static class MotionResponse  implements Serializable{
 
         }
 
@@ -57,7 +65,7 @@ public interface LightService {
         }
     }
 
-    @PATCH("/Api/light/{lightId")
+    @PATCH("/Api/light/{lightId}")
     Call<Void> updateLight(@Path("lightId") String lightId, @Body UpdateLightModel model);
 
     class UpdateLightModel {
@@ -72,10 +80,10 @@ public interface LightService {
         }
     }
 
-    @DELETE("/Api/light/{lightId")
+    @DELETE("/Api/light/{lightId}")
     Call<Void> deleteLight(@Path("lightId") String lightId);
 
-    @PATCH("/Api/sensor/{sensorId")
+    @PATCH("/Api/sensor/{sensorId}")
     Call<Void> updateSensor(@Path("sensorId") String sensorId, @Body UpdateSensorModel model);
 
     class UpdateSensorModel {
@@ -90,7 +98,7 @@ public interface LightService {
         }
     }
 
-    @DELETE("/Api/sensor/{sensorId")
+    @DELETE("/Api/sensor/{sensorId}")
     Call<Void> deleteSensor(@Path("sensorId") String sensorId);
 
     @POST("Api/assigned")

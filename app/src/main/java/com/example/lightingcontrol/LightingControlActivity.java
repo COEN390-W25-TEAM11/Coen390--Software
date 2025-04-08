@@ -19,6 +19,7 @@ import com.example.lightingcontrol.auth.MainActivity;
 import com.example.lightingcontrol.helpers.SharedPreferencesHelper;
 import com.google.android.material.appbar.MaterialToolbar;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 
 import api.LightService;
@@ -77,8 +78,13 @@ public class LightingControlActivity extends AppCompatActivity {
         String username = sharedPreferencesHelper.getUsername();
         helloUser.setText(username != null ? "Hello " + username + "!" : "Hello User!");
 
-        loadData();
         initListViews();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadData();
     }
 
     @Override
@@ -100,7 +106,13 @@ public class LightingControlActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 var item = (KeyValueItem) parent.getItemAtPosition(position);
 
-                Toast.makeText(LightingControlActivity.this, item.type + item.name, Toast.LENGTH_SHORT).show();
+                if (item.type.equals("Light")) {
+                    Intent intent = new Intent(LightingControlActivity.this, SpecificLightActivity.class);
+                    intent.putExtra("light", Arrays.stream(data.lights).filter(fuck -> fuck.id.equals(item.id)).findFirst().get());
+                    LightingControlActivity.this.startActivity(intent);
+                } else if (item.type.equals("Sensor")) {
+                    // TODO
+                }
             }
         });
 

@@ -1,18 +1,26 @@
 package com.example.lightingcontrol;
 
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.lightingcontrol.helpers.SharedPreferencesHelper;
@@ -37,18 +45,13 @@ import retrofit2.Retrofit;
 
 public class SpecificLightActivity extends AppCompatActivity {
 
-    private String currentLightId, currentLightName;
+
+    // Services and helper
     private SharedPreferencesHelper sharedPreferencesHelper;
     private LightService lightService;
-    private LightService.LightResponse lightResponse;
-    private LightService.Light light;
-    private boolean lightInitialized = false;
-    private UUID lightId;
-    private WebSocketClient webSocketClient;
-    private MyWebSocketListener webSocketListener;
 
-    private List<String> formattedMotionHistory = new ArrayList<>();
-    private ArrayAdapter<String> motionHistoryAdapter;
+    // Data
+    private LightService.GetResponse.LightResponse currentLight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,50 +66,56 @@ public class SpecificLightActivity extends AppCompatActivity {
             toolbar.setNavigationIconTint(getResources().getColor(android.R.color.white));
         }
 
-        // Initialize views
-        TextView lightName = findViewById(R.id.lightName);
-        TextView lightInformation = findViewById(R.id.lightInformation);
-        TextView lightStatus = findViewById(R.id.lightStatus);
-        Button overrideButton = findViewById(R.id.overrideButton);
-        ToggleButton toggleButton = findViewById(R.id.toggleButton);
-        ListView listView = findViewById(R.id.listView);
-
         // Get intent data
-        currentLightId = getIntent().getStringExtra("lightId");
-        currentLightName = getIntent().getStringExtra("lightName");
-        lightName.setText(currentLightName);
-
-        // Initialize motion history
-        motionHistoryAdapter = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_list_item_1,
-                formattedMotionHistory
-        );
-        listView.setAdapter(motionHistoryAdapter);
+        currentLight = (LightService.GetResponse.LightResponse) getIntent().getSerializableExtra("light");
 
         // Initialize services
         sharedPreferencesHelper = new SharedPreferencesHelper(this);
         Retrofit retrofit = RetrofitClient.getRetrofit(sharedPreferencesHelper.getToken());
         lightService = retrofit.create(LightService.class);
 
-        // Setup web socket
-        webSocketListener = new MyWebSocketListener();
-        webSocketClient = new WebSocketClient(webSocketListener, sharedPreferencesHelper.getToken());
-        webSocketClient.connectWebSocket();
+        // Set click listeners on buttons
+        Button renameButton = findViewById(R.id.renameButton);
+        renameButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-        // Fetch light data
-        fetchLightData();
-        fetchMotionHistory();
+                final EditText input = new EditText(SpecificLightActivity.this);
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
 
-        // Set up button click listeners
-        overrideButton.setOnClickListener(v -> toggleMode());
-        toggleButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (lightInitialized) {
-                light.setState(isChecked ? 1 : 0);
-                updateLight(light);
-                updateLightStatus();
+                new AlertDialog
+                        .Builder(SpecificLightActivity.this).setTitle("Light name")
+                        .setView(input)
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            currentLight.name = input.getText().toString();
+                            updateInterface();
+                            save();
+                        })
+                        .setNegativeButton("No", (dialog, which) -> {
+                        })
+                        .show();
             }
         });
+
+        Button overrideButton = findViewById(R.id.overrideButton);
+        overrideButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                currentLight.overide = !currentLight.overide;
+                updateInterface();
+                save();
+            }
+        });
+
+        ToggleButton toggleButton = findViewById(R.id.toggleButton);
+        toggleButton.setChecked(currentLight.state == 1);
+        toggleButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            currentLight.state = isChecked ? 1 : 0;
+            updateInterface();
+            save();
+        });
+
+        updateInterface();
     }
 
     @Override
@@ -119,8 +128,7 @@ public class SpecificLightActivity extends AppCompatActivity {
             Drawable deleteIcon = deleteItem.getIcon();
             if (deleteIcon != null) {
                 deleteIcon = deleteIcon.mutate();
-                deleteIcon.setColorFilter(getResources().getColor(android.R.color.white),
-                        PorterDuff.Mode.SRC_ATOP);
+                deleteIcon.setColorFilter(getResources().getColor(android.R.color.white), PorterDuff.Mode.SRC_ATOP);
                 deleteItem.setIcon(deleteIcon);
             }
         }
@@ -136,177 +144,56 @@ public class SpecificLightActivity extends AppCompatActivity {
             onBackPressed();
             return true;
         } else if (id == R.id.action_delete) {
-            showDeleteDialog();
+//            showDeleteDialog();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    // Add this new method:
-    private void showDeleteDialog() {
-//        DeleteLightFragment deleteFragment = DeleteLightFragment.newInstance(currentLightName);
-//        deleteFragment.setDeleteLightListener(new DeleteLightFragment.DeleteLightListener() {
-//            @Override
-//            public void onDeleteConfirmed() {
-//                // For now, just show a toast
-//                Toast.makeText(SpecificLightActivity.this,
-//                        "Would delete " + currentLightName + " (implementation coming)",
-//                        Toast.LENGTH_SHORT).show();
-//
-//                // Later you'll replace this with actual delete code:
-//                // deleteLight();
-//            }
-//        });
-//        deleteFragment.show(getSupportFragmentManager(), "deleteLightFragment");
-    }
-    private void fetchLightData() {
-        lightId = UUID.fromString(currentLightId);
-        Call<LightService.LightResponse> call = lightService.getLightById(lightId);
-        call.enqueue(new Callback<LightService.LightResponse>() {
-            @Override
-            public void onResponse(Call<LightService.LightResponse> call, Response<LightService.LightResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    lightResponse = response.body();
-                    light = new LightService.Light();
-                    light.setId(lightResponse.getId());
-                    light.setName(lightResponse.getName());
-                    light.setOveride(lightResponse.isOveride());
-                    light.setState(lightResponse.getState());
-                    lightInitialized = true;
-                    updateUI();
-                } else {
-                    Toast.makeText(SpecificLightActivity.this, "Error getting light: " + response.code(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<LightService.LightResponse> call, Throwable t) {
-                Toast.makeText(SpecificLightActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void updateUI() {
-        TextView lightInformation = findViewById(R.id.lightInformation);
-        Button overrideButton = findViewById(R.id.overrideButton);
-        ToggleButton toggleButton = findViewById(R.id.toggleButton);
-
-        lightInformation.setText(String.format("Connected Sensor: \nCurrent Mode: %s",
-                light.isOveride() ? "Manual Mode" : "Sensor Mode"));
-
-        updateLightStatus();
-
-        if (light.isOveride()) {
-            overrideButton.setText("Switch to Sensor Mode");
-            toggleButton.setVisibility(android.view.View.VISIBLE);
-            toggleButton.setChecked(light.getState() == 1);
-        } else {
-            overrideButton.setText("Switch to Manual Mode");
-            toggleButton.setVisibility(android.view.View.INVISIBLE);
-        }
-    }
-
-    private void updateLightStatus() {
-        TextView lightStatus = findViewById(R.id.lightStatus);
-        lightStatus.setText(light.getState() == 1 ? "Light is ON" : "Light is OFF");
-        lightStatus.setTextColor(light.getState() == 1 ?
-                getResources().getColor(android.R.color.holo_green_dark) :
-                getResources().getColor(android.R.color.holo_red_dark));
-    }
-
-    private void toggleMode() {
-        if (lightInitialized) {
-            light.setOveride(!light.isOveride());
-            updateLight(light);
-            updateUI();
-        }
-    }
-
-    private void updateLight(LightService.Light light) {
-        LightService.LightUpdateDto lightUpdateDto = new LightService.LightUpdateDto(
-                light.getName(), light.getState(), light.isOveride());
-
-        Call<Void> call = lightService.patchLight(lightId.toString(), lightUpdateDto);
+    private void save() {
+        Call<Void> call = lightService.updateLight(currentLight.id, new LightService.UpdateLightModel(currentLight.name, currentLight.overide, currentLight.state));
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (!response.isSuccessful()) {
-                    Toast.makeText(SpecificLightActivity.this, "Failed to update light", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SpecificLightActivity.this, "Could not update light", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(SpecificLightActivity.this, "Network error updating light", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SpecificLightActivity.this, "Could not update light", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void fetchMotionHistory() {
-        ListView listView = findViewById(R.id.listView);
-        TextView motionHistoryHeader = findViewById(R.id.motionHistoryHeader);
+    private void updateInterface() {
+        TextView lightName = findViewById(R.id.lightName);
+        TextView lightInformation = findViewById(R.id.lightInformation);
+        TextView lightStatus = findViewById(R.id.lightStatus);
+        Button overrideButton = findViewById(R.id.overrideButton);
+        ToggleButton toggleButton = findViewById(R.id.toggleButton);
 
-        Call<List<LightService.MotionHistory>> call = lightService.getMotionByLight(lightId);
-        call.enqueue(new Callback<List<LightService.MotionHistory>>() {
-            @Override
-            public void onResponse(Call<List<LightService.MotionHistory>> call, Response<List<LightService.MotionHistory>> response) {
-                if (response.isSuccessful()) {
-                    List<LightService.MotionHistory> motionHistory = response.body();
+        lightName.setText(currentLight.name);
 
-                    if (motionHistory != null && !motionHistory.isEmpty()) {
-                        formattedMotionHistory.clear();
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS", Locale.US);
-                        SimpleDateFormat displayFormat = new SimpleDateFormat("h:mm a\nEEEE, MMMM d, yyyy", Locale.US);
+        lightInformation.setText(String.format("Connected Sensor: %d \nCurrent Mode: %s", currentLight.pin, currentLight.overide ? "Manual Mode" : "Sensor Mode"));
 
-                        for (LightService.MotionHistory history : motionHistory) {
-                            try {
-                                Date date = dateFormat.parse(history.getDateTime());
-                                formattedMotionHistory.add("Motion detected at " + displayFormat.format(date));
-                            } catch (ParseException e) {
-                                Log.e("DateParse", "Error parsing date", e);
-                            }
-                        }
-
-                        runOnUiThread(() -> {
-                            motionHistoryAdapter.notifyDataSetChanged();
-                            motionHistoryHeader.setVisibility(android.view.View.VISIBLE);
-                            listView.setVisibility(android.view.View.VISIBLE);
-                        });
-                    } else {
-                        runOnUiThread(() -> {
-                            motionHistoryHeader.setText("No motion history available");
-                            motionHistoryHeader.setVisibility(android.view.View.VISIBLE);
-                            listView.setVisibility(android.view.View.INVISIBLE);
-                        });
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<LightService.MotionHistory>> call, Throwable t) {
-                runOnUiThread(() -> {
-                    motionHistoryHeader.setText("Error loading motion history");
-                    motionHistoryHeader.setVisibility(android.view.View.VISIBLE);
-                });
-            }
-        });
-    }
-
-    private class MyWebSocketListener extends WebSocketClient.MyWebSocketListener {
-        @Override
-        public void onMessage(WebSocket webSocket, String text) {
-            if (text.contains("has movement") && text.contains(currentLightName)) {
-                runOnUiThread(() -> fetchMotionHistory());
-            }
+        String status = "";
+        if (currentLight.overide) {
+            lightStatus.setVisibility(VISIBLE);
+            lightStatus.setText(String.format("Light is %s", currentLight.state == 1 ? "On" : "Off"));
+            lightStatus.setTextColor(currentLight.state == 1 ? Color.GREEN : Color.RED);
+        } else {
+            lightStatus.setVisibility(INVISIBLE);
         }
-    }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (webSocketClient != null) {
-            //webSocketClient.disconnectWebSocket();
+        if (currentLight.overide) {
+            overrideButton.setText("Switch to Sensor Mode");
+            toggleButton.setVisibility(VISIBLE);
+        } else {
+            overrideButton.setText("Switch to Manual Mode");
+            toggleButton.setVisibility(INVISIBLE);
         }
     }
 }

@@ -43,7 +43,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="24dp"
-        android:text="Connected Sensor: \nCurrent Mode: Sensor Mode"/>
+        android:text="Connected Sensor: Unknown \nCurrent Mode: Sensor Mode"/>
 
     <!-- Light Status -->
     <TextView
@@ -67,6 +67,17 @@
         android:layout_marginEnd="24dp"
         android:background="#E0E0E0"/>
 
+    <Button
+        android:id="@+id/renameButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:text="Rename"
+        android:backgroundTint="#6200EE"
+        android:textColor="#FFFFFF"/>
+
     <!-- Mode Switch Button -->
     <Button
         android:id="@+id/overrideButton"
@@ -87,30 +98,5 @@
         android:layout_marginTop="16dp"
         android:layout_gravity="center_horizontal"
         android:visibility="invisible"/>
-
-    <!-- Motion History Header -->
-    <TextView
-        android:id="@+id/motionHistoryHeader"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="24dp"
-        android:text="Motion History:"
-        android:textSize="16sp"
-        android:textStyle="bold"/>
-
-    <!-- Motion History List -->
-    <ListView
-        android:id="@+id/listView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="24dp"
-        android:divider="#E0E0E0"
-        android:dividerHeight="1dp"/>
 
 </LinearLayout>
