@@ -1,5 +1,7 @@
 package api;
 
+import androidx.annotation.NonNull;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -25,12 +27,23 @@ public interface LightService {
         public static class LightResponse {
             public String id;
             public String name;
+
+            @NonNull
+            @Override
+            public String toString() {
+                return name;
+            }
         }
 
         public static class SensorResponse {
             public String id;
             public String name;
             public MotionResponse[] motion;
+
+            @Override
+            public String toString() {
+                return name;
+            }
         }
 
         public static class MotionResponse {

@@ -120,7 +120,8 @@ public class LightingControlActivity extends AppCompatActivity {
 
     private void onAddLightClick() {
         CreateLightFragment createLightFragment = new CreateLightFragment();
-        createLightFragment.setRefreshAfterSave(this::loadData);
+        createLightFragment.setRefreshCallback(this::loadData);
+        createLightFragment.setData(this.data);
         createLightFragment.show(getSupportFragmentManager(), "createLightFragment");
     }
 

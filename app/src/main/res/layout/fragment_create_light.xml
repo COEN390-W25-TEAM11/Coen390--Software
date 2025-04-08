@@ -7,33 +7,33 @@
     android:padding="24dp"
     android:background="#FFFFFF">
 
-    <!-- Title -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="New Light Name:"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="8dp"/>
+<!--    &lt;!&ndash; Title &ndash;&gt;-->
+<!--    <TextView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="New Light Name:"-->
+<!--        android:textSize="18sp"-->
+<!--        android:textStyle="bold"-->
+<!--        android:layout_marginBottom="8dp"/>-->
 
-    <!-- Name Input -->
-    <EditText
-        android:id="@+id/editName"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:hint="Enter light name"
-        android:inputType="text"
-        android:textColorHint="#999999"
-        android:background="@drawable/edittext_border"
-        android:padding="12dp"
-        android:layout_marginBottom="24dp"/>
+<!--    &lt;!&ndash; Name Input &ndash;&gt;-->
+<!--    <EditText-->
+<!--        android:id="@+id/editName"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="48dp"-->
+<!--        android:hint="Enter light name"-->
+<!--        android:inputType="text"-->
+<!--        android:textColorHint="#999999"-->
+<!--        android:background="@drawable/edittext_border"-->
+<!--        android:padding="12dp"-->
+<!--        android:layout_marginBottom="24dp"/>-->
 
     <!-- Section Title -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Choose Light and Sensor:"
-        android:textSize="16sp"
+        android:textSize="18sp"
         android:textStyle="bold"
         android:layout_marginBottom="16dp"/>
 
@@ -41,77 +41,31 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="• Light"
+        android:text="Light"
         android:textSize="16sp"
         android:layout_marginBottom="8dp"/>
 
-    <!-- Light Items -->
-    <LinearLayout
+    <Spinner
+        android:id="@+id/light_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginLeft="24dp"
-        android:layout_marginBottom="16dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="◦ Item 1"
-            android:textSize="14sp"/>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="◦ Item 2"
-            android:textSize="14sp"/>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="◦ Item 3"
-            android:textSize="14sp"/>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="◦ Item 4"
-            android:textSize="14sp"/>
-    </LinearLayout>
+        android:background="@android:drawable/btn_dropdown"
+        android:spinnerMode="dropdown"/>
 
     <!-- Sensor Selection -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="• Sensor"
+        android:text="Sensor"
         android:textSize="16sp"
         android:layout_marginBottom="8dp"/>
 
-    <!-- Sensor Items -->
-    <LinearLayout
+    <Spinner
+        android:id="@+id/sensor_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginLeft="24dp"
-        android:layout_marginBottom="24dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="◦ Item 1"
-            android:textSize="14sp"/>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="◦ Item 2"
-            android:textSize="14sp"/>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="◦ Item 3"
-            android:textSize="14sp"/>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="◦ Item 4"
-            android:textSize="14sp"/>
-    </LinearLayout>
+        android:background="@android:drawable/btn_dropdown"
+        android:spinnerMode="dropdown"/>
 
     <!-- Buttons -->
     <LinearLayout

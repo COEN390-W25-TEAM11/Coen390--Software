@@ -142,11 +142,13 @@ public class AccountActivity extends AppCompatActivity {
     private class AccountsAdapter extends BaseAdapter {
         @Override
         public int getCount() {
+            if (accountList == null) return 0;
             return accountList.size();
         }
 
         @Override
         public AuthService.UserItem getItem(int position) {
+            if (accountList == null) return null;
             return accountList.get(position);
         }
 
