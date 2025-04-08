@@ -15,9 +15,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.lightingcontrol.account.AccountActivity;
+import com.example.lightingcontrol.auth.MainActivity;
+import com.example.lightingcontrol.helpers.SharedPreferencesHelper;
 import com.google.android.material.appbar.MaterialToolbar;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 
 import api.LightService;

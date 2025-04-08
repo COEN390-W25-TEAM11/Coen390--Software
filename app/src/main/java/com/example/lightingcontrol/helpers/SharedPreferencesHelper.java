@@ -1,4 +1,4 @@
-package com.example.lightingcontrol;
+package com.example.lightingcontrol.helpers;
 
 import android.content.Context;
 import android.content.SharedPreferences;

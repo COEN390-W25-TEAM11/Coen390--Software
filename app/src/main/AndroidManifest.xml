@@ -20,13 +20,13 @@
             android:name=".account.AccountActivity"
             android:exported="false" />
         <activity
-            android:name=".CreateUser"
+            android:name=".auth.CreateUser"
             android:exported="false" />
         <activity
             android:name=".MotionLogsActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".auth.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,9 +39,6 @@
             android:exported="false" /> <!-- Settings Screen -->
         <activity
             android:name=".SpecificLightActivity"
-            android:exported="false" />
-        <activity
-            android:name=".PresetActivity"
             android:exported="false" />
     </application>
 

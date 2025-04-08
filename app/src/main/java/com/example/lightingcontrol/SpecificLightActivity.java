@@ -15,6 +15,7 @@ import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.lightingcontrol.helpers.SharedPreferencesHelper;
 import com.google.android.material.appbar.MaterialToolbar;
 
 import java.text.ParseException;
@@ -33,7 +34,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import androidx.fragment.app.DialogFragment;
 
 public class SpecificLightActivity extends AppCompatActivity {
 
@@ -145,20 +145,20 @@ public class SpecificLightActivity extends AppCompatActivity {
 
     // Add this new method:
     private void showDeleteDialog() {
-        DeleteLightFragment deleteFragment = DeleteLightFragment.newInstance(currentLightName);
-        deleteFragment.setDeleteLightListener(new DeleteLightFragment.DeleteLightListener() {
-            @Override
-            public void onDeleteConfirmed() {
-                // For now, just show a toast
-                Toast.makeText(SpecificLightActivity.this,
-                        "Would delete " + currentLightName + " (implementation coming)",
-                        Toast.LENGTH_SHORT).show();
-
-                // Later you'll replace this with actual delete code:
-                // deleteLight();
-            }
-        });
-        deleteFragment.show(getSupportFragmentManager(), "deleteLightFragment");
+//        DeleteLightFragment deleteFragment = DeleteLightFragment.newInstance(currentLightName);
+//        deleteFragment.setDeleteLightListener(new DeleteLightFragment.DeleteLightListener() {
+//            @Override
+//            public void onDeleteConfirmed() {
+//                // For now, just show a toast
+//                Toast.makeText(SpecificLightActivity.this,
+//                        "Would delete " + currentLightName + " (implementation coming)",
+//                        Toast.LENGTH_SHORT).show();
+//
+//                // Later you'll replace this with actual delete code:
+//                // deleteLight();
+//            }
+//        });
+//        deleteFragment.show(getSupportFragmentManager(), "deleteLightFragment");
     }
     private void fetchLightData() {
         lightId = UUID.fromString(currentLightId);

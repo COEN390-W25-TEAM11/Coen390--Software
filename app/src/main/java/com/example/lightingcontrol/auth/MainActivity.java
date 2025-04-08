@@ -1,11 +1,10 @@
-package com.example.lightingcontrol;
+package com.example.lightingcontrol.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.LinkMovementMethod;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -13,6 +12,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.lightingcontrol.LightingControlActivity;
+import com.example.lightingcontrol.R;
+import com.example.lightingcontrol.helpers.SharedPreferencesHelper;
 
 import api.AuthService;
 import api.RetrofitClient;
