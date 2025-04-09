@@ -7,15 +7,14 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.text.InputType;
-import android.util.Log;
+import android.text.Spanned;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -26,24 +25,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.lightingcontrol.helpers.SharedPreferencesHelper;
 import com.google.android.material.appbar.MaterialToolbar;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 import api.LightService;
 import api.RetrofitClient;
-import api.WebSocketClient;
-import okhttp3.WebSocket;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class SpecificLightActivity extends AppCompatActivity {
+public class SpecificSensorActivity extends AppCompatActivity {
 
 
     // Services and helper
@@ -51,12 +42,12 @@ public class SpecificLightActivity extends AppCompatActivity {
     private LightService lightService;
 
     // Data
-    private LightService.GetResponse.LightResponse currentLight;
+    private LightService.GetResponse.SensorResponse currentSensor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_specific_light);
+        setContentView(R.layout.activity_specific_sensor);
 
         // Initialize MaterialToolbar
         MaterialToolbar toolbar = findViewById(R.id.topAppBarLight);
@@ -67,7 +58,7 @@ public class SpecificLightActivity extends AppCompatActivity {
         }
 
         // Get intent data
-        currentLight = (LightService.GetResponse.LightResponse) getIntent().getSerializableExtra("light");
+        currentSensor = (LightService.GetResponse.SensorResponse) getIntent().getSerializableExtra("sensor");
 
         // Initialize services
         sharedPreferencesHelper = new SharedPreferencesHelper(this);
@@ -79,16 +70,14 @@ public class SpecificLightActivity extends AppCompatActivity {
         renameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                final EditText input = new EditText(SpecificLightActivity.this);
+                final EditText input = new EditText(SpecificSensorActivity.this);
                 input.setInputType(InputType.TYPE_CLASS_TEXT);
-                input.setText(currentLight.name);
 
                 new AlertDialog
-                        .Builder(SpecificLightActivity.this).setTitle("Light name")
+                        .Builder(SpecificSensorActivity.this).setTitle("Sensor name")
                         .setView(input)
                         .setPositiveButton("Save", (dialog, which) -> {
-                            currentLight.name = input.getText().toString();
+                            currentSensor.name = input.getText().toString();
                             updateInterface();
                             save();
                         })
@@ -98,22 +87,41 @@ public class SpecificLightActivity extends AppCompatActivity {
             }
         });
 
-        Button overrideButton = findViewById(R.id.overrideButton);
-        overrideButton.setOnClickListener(new View.OnClickListener() {
+        final int MIN_TIMEOUT = 1;
+        final int MAX_TIMEOUT = 120;
+        Button timeoutButton = findViewById(R.id.timeoutButton);
+        timeoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                currentLight.overide = !currentLight.overide;
-                updateInterface();
-                save();
-            }
-        });
+                final EditText input = new EditText(SpecificSensorActivity.this);
+                input.setInputType(InputType.TYPE_CLASS_NUMBER);
+                input.setText(String.valueOf(currentSensor.timeout / 1000));
+                input.setFilters(new InputFilter[]{new InputFilter() {
+                    @Override
+                    public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+                        String newVal = dest.subSequence(0, dstart) + source.toString() + dest.subSequence(dend, dest.length());
+                        if (newVal.isEmpty()) return null;
 
-        ToggleButton toggleButton = findViewById(R.id.toggleButton);
-        toggleButton.setChecked(currentLight.state == 1);
-        toggleButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            currentLight.state = isChecked ? 1 : 0;
-            updateInterface();
-            save();
+                        int input = Integer.parseInt(newVal);
+                        if (input >= MIN_TIMEOUT && input <= MAX_TIMEOUT)
+                            return null;
+
+                        return "";
+                    }
+                }});
+
+                new AlertDialog
+                        .Builder(SpecificSensorActivity.this).setTitle("Sensor timeout")
+                        .setView(input)
+                        .setMessage(String.format(Locale.getDefault(), "Set the timeout for this sensor in seconds from %d to %d", MIN_TIMEOUT, MAX_TIMEOUT))
+                        .setPositiveButton("Save", (dialog, which) -> {
+                            currentSensor.timeout = Integer.parseInt(input.getText().toString()) * 1000;
+                            save();
+                        })
+                        .setNegativeButton("Cancel", (dialog, which) -> {
+                        })
+                        .show();
+            }
         });
 
         updateInterface();
@@ -146,15 +154,15 @@ public class SpecificLightActivity extends AppCompatActivity {
             return true;
         } else if (id == R.id.action_delete) {
             new AlertDialog
-                    .Builder(SpecificLightActivity.this).setTitle("Delete light")
-                    .setMessage("Are you sure you want to delete this light?")
+                    .Builder(SpecificSensorActivity.this).setTitle("Delete sensor")
+                    .setMessage("Are you sure you want to delete this sensor?")
                     .setPositiveButton("Yes", (dialog, which) -> {
-                        Call<Void> call = lightService.deleteLight(currentLight.id);
+                        Call<Void> call = lightService.deleteSensor(currentSensor.id);
                         call.enqueue(new Callback<Void>() {
                             @Override
                             public void onResponse(Call<Void> call, Response<Void> response) {
                                 if (!response.isSuccessful()) {
-                                    Toast.makeText(SpecificLightActivity.this, "Could not delete light", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(SpecificSensorActivity.this, "Could not delete sensor", Toast.LENGTH_SHORT).show();
                                 } else {
                                     finish();
                                 }
@@ -162,7 +170,7 @@ public class SpecificLightActivity extends AppCompatActivity {
 
                             @Override
                             public void onFailure(Call<Void> call, Throwable t) {
-                                Toast.makeText(SpecificLightActivity.this, "Could not delete light", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(SpecificSensorActivity.this, "Could not delete sensor", Toast.LENGTH_SHORT).show();
                             }
                         });
                     })
@@ -176,48 +184,28 @@ public class SpecificLightActivity extends AppCompatActivity {
     }
 
     private void save() {
-        Call<Void> call = lightService.updateLight(currentLight.id, new LightService.UpdateLightModel(currentLight.name, currentLight.overide, currentLight.state));
+        Call<Void> call = lightService.updateSensor(currentSensor.id, new LightService.UpdateSensorModel(currentSensor.name, currentSensor.sensitivity, currentSensor.timeout));
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (!response.isSuccessful()) {
-                    Toast.makeText(SpecificLightActivity.this, "Could not update light", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SpecificSensorActivity.this, "Could not update sensor", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(SpecificLightActivity.this, "Could not update light", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SpecificSensorActivity.this, "Could not update sensor", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void updateInterface() {
-        TextView lightName = findViewById(R.id.lightName);
-        TextView lightInformation = findViewById(R.id.lightInformation);
-        TextView lightStatus = findViewById(R.id.lightStatus);
-        Button overrideButton = findViewById(R.id.overrideButton);
-        ToggleButton toggleButton = findViewById(R.id.toggleButton);
+        TextView sensorName = findViewById(R.id.sensorName);
+        TextView sensorInformation = findViewById(R.id.sensorInformation);
 
-        lightName.setText(currentLight.name);
+        sensorName.setText(currentSensor.name);
 
-        lightInformation.setText(String.format("Connected Sensor: %d \nCurrent Mode: %s", currentLight.pin, currentLight.overide ? "Manual Mode" : "Sensor Mode"));
-
-        String status = "";
-        if (currentLight.overide) {
-            lightStatus.setVisibility(VISIBLE);
-            lightStatus.setText(String.format("Light is %s", currentLight.state == 1 ? "On" : "Off"));
-            lightStatus.setTextColor(currentLight.state == 1 ? Color.GREEN : Color.RED);
-        } else {
-            lightStatus.setVisibility(INVISIBLE);
-        }
-
-        if (currentLight.overide) {
-            overrideButton.setText("Switch to Sensor Mode");
-            toggleButton.setVisibility(VISIBLE);
-        } else {
-            overrideButton.setText("Switch to Manual Mode");
-            toggleButton.setVisibility(INVISIBLE);
-        }
+        sensorInformation.setText(String.format("Connected Sensor: %d", currentSensor.pin));
     }
 }

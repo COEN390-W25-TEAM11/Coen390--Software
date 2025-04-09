@@ -69,6 +69,12 @@ public class CreateUser extends AppCompatActivity {
             return;
         }
 
+        // Validate username length
+        if (username.length() < 4 || username.length() > 16) {
+            Toast.makeText(CreateUser.this, "Username must be 4-16 characters", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         // Validate password length
         if (password.length() < 4 || password.length() > 8) {
             Toast.makeText(CreateUser.this, "Password must be 4-8 characters", Toast.LENGTH_SHORT).show();

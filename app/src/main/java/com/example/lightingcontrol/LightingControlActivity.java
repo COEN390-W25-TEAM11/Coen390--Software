@@ -108,10 +108,12 @@ public class LightingControlActivity extends AppCompatActivity {
 
                 if (item.type.equals("Light")) {
                     Intent intent = new Intent(LightingControlActivity.this, SpecificLightActivity.class);
-                    intent.putExtra("light", Arrays.stream(data.lights).filter(fuck -> fuck.id.equals(item.id)).findFirst().get());
+                    intent.putExtra("light", Arrays.stream(data.lights).filter(e -> e.id.equals(item.id)).findFirst().get());
                     LightingControlActivity.this.startActivity(intent);
                 } else if (item.type.equals("Sensor")) {
-                    // TODO
+                    Intent intent = new Intent(LightingControlActivity.this, SpecificSensorActivity.class);
+                    intent.putExtra("sensor", Arrays.stream(data.sensors).filter(e -> e.id.equals(item.id)).findFirst().get());
+                    LightingControlActivity.this.startActivity(intent);
                 }
             }
         });

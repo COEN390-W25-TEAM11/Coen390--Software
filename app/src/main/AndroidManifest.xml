@@ -40,6 +40,9 @@
         <activity
             android:name=".SpecificLightActivity"
             android:exported="false" />
+        <activity
+            android:name=".SpecificSensorActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
