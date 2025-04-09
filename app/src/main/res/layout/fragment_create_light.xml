@@ -7,32 +7,11 @@
     android:padding="24dp"
     android:background="#FFFFFF">
 
-<!--    &lt;!&ndash; Title &ndash;&gt;-->
-<!--    <TextView-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="New Light Name:"-->
-<!--        android:textSize="18sp"-->
-<!--        android:textStyle="bold"-->
-<!--        android:layout_marginBottom="8dp"/>-->
-
-<!--    &lt;!&ndash; Name Input &ndash;&gt;-->
-<!--    <EditText-->
-<!--        android:id="@+id/editName"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="48dp"-->
-<!--        android:hint="Enter light name"-->
-<!--        android:inputType="text"-->
-<!--        android:textColorHint="#999999"-->
-<!--        android:background="@drawable/edittext_border"-->
-<!--        android:padding="12dp"-->
-<!--        android:layout_marginBottom="24dp"/>-->
-
     <!-- Section Title -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Choose Light and Sensor:"
+        android:text="Choose one light and sensor:"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_marginBottom="16dp"/>

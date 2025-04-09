@@ -29,10 +29,6 @@ public class CreateLightFragment extends DialogFragment {
     private SharedPreferencesHelper sharedPreferencesHelper;
     private LightService lightService;
 
-    // UI elements
-    private Spinner lightDropdown, sensorDropdown;
-    private Button cancelButton, saveButton;
-
     // Callback
     private Runnable refreshCallback;
 
@@ -57,10 +53,11 @@ public class CreateLightFragment extends DialogFragment {
         View view = inflater.inflate(R.layout.fragment_create_light, container, false);
 
         // Initialize UI elements
-        lightDropdown = view.findViewById(R.id.light_spinner);
-        sensorDropdown = view.findViewById(R.id.sensor_spinner);
-        cancelButton = view.findViewById(R.id.cancelButton);
-        saveButton = view.findViewById(R.id.saveButton);
+        // UI elements
+        Spinner lightDropdown = view.findViewById(R.id.light_spinner);
+        Spinner sensorDropdown = view.findViewById(R.id.sensor_spinner);
+        Button cancelButton = view.findViewById(R.id.cancelButton);
+        Button saveButton = view.findViewById(R.id.saveButton);
 
         // Initialize services
         sharedPreferencesHelper = new SharedPreferencesHelper(requireContext());
@@ -101,6 +98,11 @@ public class CreateLightFragment extends DialogFragment {
     }
 
     private void createComboLight() {
+
+        if (!validate()) {
+            return;
+        }
+
         var model = new LightService.AssignLightSensorModel(selectedLightId, selectedSensorId);
         Call<Void> call = lightService.assignLightSensor(model);
 
@@ -121,5 +123,16 @@ public class CreateLightFragment extends DialogFragment {
                 Toast.makeText(requireContext(), "Error when creating combo", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private boolean validate() {
+        for(var combo: data.combinations) {
+            if (combo.lightId.equals(selectedLightId) || combo.sensorId.equals(selectedSensorId)) {
+                Toast.makeText(requireContext(), "The chosen light or sensor is already in use", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
+
+        return true;
     }
 }
