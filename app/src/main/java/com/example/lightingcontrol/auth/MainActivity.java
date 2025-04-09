@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -16,6 +17,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.lightingcontrol.LightingControlActivity;
 import com.example.lightingcontrol.R;
 import com.example.lightingcontrol.helpers.SharedPreferencesHelper;
+
+import java.io.IOException;
 
 import api.AuthService;
 import api.RetrofitClient;
@@ -80,6 +83,17 @@ public class MainActivity extends AppCompatActivity {
                         Intent intent = new Intent(MainActivity.this, LightingControlActivity.class);
                         startActivity(intent);
                         finish();
+                    } else if (response.code() == 401) {
+                        String errorMessage = "";
+                        try {
+                            if (response.errorBody() != null) {
+                                errorMessage = response.errorBody().string(); // Get raw error message as string
+                            }
+                        } catch (IOException e) {
+                            errorMessage = "Error reading error body";
+                        }
+                        Log.d("login", errorMessage);
+                        Toast.makeText(MainActivity.this, "Login failed: " + errorMessage, Toast.LENGTH_LONG).show();
                     } else {
                         Toast.makeText(MainActivity.this, "Login failed: " + response.code(), Toast.LENGTH_LONG).show();
                     }
