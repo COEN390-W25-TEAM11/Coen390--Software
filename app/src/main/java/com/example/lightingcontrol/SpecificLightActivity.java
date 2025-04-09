@@ -86,12 +86,12 @@ public class SpecificLightActivity extends AppCompatActivity {
                 new AlertDialog
                         .Builder(SpecificLightActivity.this).setTitle("Light name")
                         .setView(input)
-                        .setPositiveButton("Yes", (dialog, which) -> {
+                        .setPositiveButton("Save", (dialog, which) -> {
                             currentLight.name = input.getText().toString();
                             updateInterface();
                             save();
                         })
-                        .setNegativeButton("No", (dialog, which) -> {
+                        .setNegativeButton("Cancel", (dialog, which) -> {
                         })
                         .show();
             }
@@ -141,10 +141,33 @@ public class SpecificLightActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == android.R.id.home) {
-            onBackPressed();
+            finish();
             return true;
         } else if (id == R.id.action_delete) {
-//            showDeleteDialog();
+            new AlertDialog
+                    .Builder(SpecificLightActivity.this).setTitle("Delete light")
+                    .setMessage("Are you sure you want to delete this light?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        Call<Void> call = lightService.deleteLight(currentLight.id);
+                        call.enqueue(new Callback<Void>() {
+                            @Override
+                            public void onResponse(Call<Void> call, Response<Void> response) {
+                                if (!response.isSuccessful()) {
+                                    Toast.makeText(SpecificLightActivity.this, "Could not delete light", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    finish();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<Void> call, Throwable t) {
+                                Toast.makeText(SpecificLightActivity.this, "Could not delete light", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    })
+                    .setNegativeButton("No", (dialog, which) -> {
+                    })
+                    .show();
             return true;
         }
 

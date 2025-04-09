@@ -195,13 +195,13 @@ public class AccountActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<Void> call, Response<Void> response) {
                         if (!response.isSuccessful()) {
-                            Toast.makeText(AccountActivity.this, "Could edit user permissions", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(AccountActivity.this, "Could not edit user permissions", Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
                     public void onFailure(Call<Void> call, Throwable t) {
-                        Toast.makeText(AccountActivity.this, "Could edit user permissions", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(AccountActivity.this, "Could not edit user permissions", Toast.LENGTH_SHORT).show();
                     }
                 });
             });
