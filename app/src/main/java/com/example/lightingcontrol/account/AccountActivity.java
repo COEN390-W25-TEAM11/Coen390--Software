@@ -105,6 +105,8 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private void initializeAccountsList() {
+        TextView connectedAccountSubtitle = findViewById(R.id.connectedAccountSubtitle);
+
         accountsListView = findViewById(R.id.accountsListView);
 
         AuthService authService = retrofit.create(AuthService.class);
@@ -118,14 +120,16 @@ public class AccountActivity extends AppCompatActivity {
 
                     adapter = new AccountsAdapter();
                     accountsListView.setAdapter(adapter);
+                } else if (response.code() == 403) {
+                    connectedAccountSubtitle.setText("You do not have administrative permissions to view connected accounts");
                 } else {
-                    Toast.makeText(AccountActivity.this, "Could not load user list", Toast.LENGTH_SHORT).show();
+                    connectedAccountSubtitle.setText("Could not load user list");
                 }
             }
 
             @Override
             public void onFailure(Call<AuthService.UserItem[]> call, Throwable t) {
-                Toast.makeText(AccountActivity.this, "Could not load user list", Toast.LENGTH_SHORT).show();
+                connectedAccountSubtitle.setText("Could not load user list");
             }
         });
     }

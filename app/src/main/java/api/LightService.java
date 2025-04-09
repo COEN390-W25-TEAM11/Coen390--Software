@@ -3,7 +3,10 @@ package api;
 import androidx.annotation.NonNull;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import retrofit2.Call;
@@ -55,7 +58,31 @@ public interface LightService {
         }
 
         public static class MotionResponse  implements Serializable{
+            public String dateTime;
+            public boolean motion;
 
+            private String getDayOfMonthSuffix(int n) {
+                if (n >= 11 && n <= 13) return "th";
+                switch (n % 10) {
+                    case 1:  return "st";
+                    case 2:  return "nd";
+                    case 3:  return "rd";
+                    default: return "th";
+                }
+            }
+
+            @NonNull
+            @Override
+            public String toString() {
+                LocalDateTime dateTime = LocalDateTime.parse(this.dateTime);
+
+                return String.format(Locale.getDefault(), "Motion detected at %s \n%s%s %d",
+                        dateTime.format(DateTimeFormatter.ofPattern("h:mm a")).toLowerCase(),
+                        dateTime.format(DateTimeFormatter.ofPattern("EEEE, MMMM d")).toLowerCase(),
+                        getDayOfMonthSuffix(dateTime.getDayOfMonth()),
+                        dateTime.getYear()
+                        );
+            }
         }
 
         public static class CombinationResponse {

@@ -13,8 +13,10 @@ import android.text.Spanned;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -25,7 +27,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.lightingcontrol.helpers.SharedPreferencesHelper;
 import com.google.android.material.appbar.MaterialToolbar;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import api.LightService;
 import api.RetrofitClient;
@@ -203,9 +208,15 @@ public class SpecificSensorActivity extends AppCompatActivity {
     private void updateInterface() {
         TextView sensorName = findViewById(R.id.sensorName);
         TextView sensorInformation = findViewById(R.id.sensorInformation);
+        ListView movementListVew = findViewById(R.id.listView);
 
         sensorName.setText(currentSensor.name);
 
-        sensorInformation.setText(String.format("Connected Sensor: %d", currentSensor.pin));
+        sensorInformation.setText(String.format(Locale.getDefault(), "Connected Sensor: %d", currentSensor.pin));
+
+        var motionList = Arrays.asList(currentSensor.motion);
+        motionList = motionList.stream().filter(e -> e.motion).collect(Collectors.toList());
+
+        movementListVew.setAdapter(new ArrayAdapter<>(this, R.layout.list_view_item, motionList));
     }
 }
