@@ -23,9 +23,6 @@
             android:name=".auth.CreateUser"
             android:exported="false" />
         <activity
-            android:name=".MotionLogsActivity"
-            android:exported="false" />
-        <activity
             android:name=".auth.MainActivity"
             android:exported="true">
             <intent-filter>
