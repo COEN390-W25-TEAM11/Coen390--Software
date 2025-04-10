@@ -1,4 +1,4 @@
-package com.example.lightingcontrol;
+package com.example.lightingcontrol.account;
 
 import android.app.Dialog;
 import android.os.Bundle;
@@ -11,6 +11,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+
+import com.example.lightingcontrol.R;
 
 public class ChangePasswordFragment extends DialogFragment {
 

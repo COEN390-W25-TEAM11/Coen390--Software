@@ -10,13 +10,17 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.auth0.android.jwt.JWT;
+import com.example.lightingcontrol.account.AccountActivity;
+import com.example.lightingcontrol.auth.MainActivity;
+import com.example.lightingcontrol.helpers.SharedPreferencesHelper;
 import com.google.android.material.appbar.MaterialToolbar;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.LinkedList;
 
 import api.LightService;
 import api.RetrofitClient;
@@ -25,11 +29,17 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class LightingControlActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+public class LightingControlActivity extends AppCompatActivity {
+    // Services and helpers
     protected SharedPreferencesHelper sharedPreferencesHelper;
     private LightService lightService;
-    private List<LightService.LightResponse> lights;
-    private ListView listView;
+
+    // UI elements
+    private ListView lightAndSensorListView;
+    private ListView comboListView;
+
+    // Data
+    private LightService.GetResponse data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +61,8 @@ public class LightingControlActivity extends AppCompatActivity implements Adapte
         TextView helloUser = findViewById(R.id.helloUser);
         TextView addLightText = findViewById(R.id.addLightText);
         TextView myAccountText = findViewById(R.id.myAccountText);
-        listView = findViewById(R.id.listView);
-        listView.setOnItemClickListener(this);
+        lightAndSensorListView = findViewById(R.id.listView1);
+        comboListView = findViewById(R.id.listView2);
 
         // Set click listeners for menu items
         addLightText.setOnClickListener(v -> onAddLightClick());
@@ -60,23 +70,21 @@ public class LightingControlActivity extends AppCompatActivity implements Adapte
 
         // Get JWT token
         sharedPreferencesHelper = new SharedPreferencesHelper(this);
-        String token = sharedPreferencesHelper.getToken();
 
         // Initialize retrofit and lightservice
-        Retrofit retrofit = RetrofitClient.getRetrofit(token);
+        Retrofit retrofit = RetrofitClient.getRetrofit(sharedPreferencesHelper.getToken());
         lightService = retrofit.create(LightService.class);
 
-        // Setup hello user header
-        if (token != null) {
-            JWT jwt = new JWT(token);
-            String username = jwt.getClaim("sub").asString();
-            helloUser.setText(username != null ? "Hello " + username + "!" : "Hello User!");
-        } else {
-            helloUser.setText("Hello Guest!");
-        }
+        String username = sharedPreferencesHelper.getUsername();
+        helloUser.setText(username != null ? "Hello " + username + "!" : "Hello User!");
 
-        // Fetch lights from API endpoint
-        fetchLights();
+        initListViews();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadData();
     }
 
     @Override
@@ -92,68 +100,151 @@ public class LightingControlActivity extends AppCompatActivity implements Adapte
         return super.onOptionsItemSelected(item);
     }
 
+    private void initListViews() {
+        lightAndSensorListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                var item = (KeyValueItem) parent.getItemAtPosition(position);
+
+                if (item.type.equals("Light")) {
+                    Intent intent = new Intent(LightingControlActivity.this, SpecificLightActivity.class);
+                    intent.putExtra("light", Arrays.stream(data.lights).filter(e -> e.id.equals(item.id)).findFirst().get());
+                    LightingControlActivity.this.startActivity(intent);
+                } else if (item.type.equals("Sensor")) {
+                    Intent intent = new Intent(LightingControlActivity.this, SpecificSensorActivity.class);
+                    intent.putExtra("sensor", Arrays.stream(data.sensors).filter(e -> e.id.equals(item.id)).findFirst().get());
+                    LightingControlActivity.this.startActivity(intent);
+                }
+            }
+        });
+
+        comboListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                var item = (ComboItem) parent.getItemAtPosition(position);
+
+                new AlertDialog.Builder(LightingControlActivity.this)
+                        .setTitle("Confirm")
+                        .setMessage("Are you sure you want to delete this combination?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            Call<Void> call = lightService.deleteAssign(item.id);
+
+                            call.enqueue(new Callback<Void>() {
+                                @Override
+                                public void onResponse(Call<Void> call, Response<Void> response) {
+                                    if (!response.isSuccessful()) {
+                                        Toast.makeText(LightingControlActivity.this, "The combination could not be deleted", Toast.LENGTH_SHORT).show();
+                                    }
+                                    loadData();
+                                }
+
+                                @Override
+                                public void onFailure(Call<Void> call, Throwable t) {
+                                    Toast.makeText(LightingControlActivity.this, "The combination could not be deleted", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        })
+                        .setNegativeButton("No", (dialog, which) -> {
+                        })
+                        .show();
+
+            }
+        });
+    }
+
+    private void loadData() {
+        Call<LightService.GetResponse> call = lightService.get();
+        call.enqueue(new Callback<LightService.GetResponse>() {
+
+            @Override
+            public void onResponse(Call<LightService.GetResponse> call, Response<LightService.GetResponse> response) {
+                if (response.isSuccessful()) {
+                    data = response.body();
+                    updateListView();
+                } else {
+                    Toast.makeText(LightingControlActivity.this, "Failed to load data", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LightService.GetResponse> call, Throwable t) {
+                Toast.makeText(LightingControlActivity.this, "Failed to load data", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void updateListView() {
+        LinkedList<KeyValueItem> lightAndSensorList = new LinkedList<>();
+
+        for (var e : this.data.lights) {
+            lightAndSensorList.add(new KeyValueItem("Light", e.id, e.name));
+        }
+
+        for (var e : this.data.sensors) {
+            lightAndSensorList.add(new KeyValueItem("Sensor", e.id, e.name));
+        }
+
+        lightAndSensorListView.setAdapter(new ArrayAdapter<>(this, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, lightAndSensorList));
+
+        LinkedList<ComboItem> comboList = new LinkedList<>();
+
+        for (var e : this.data.combinations) {
+            comboList.add(new ComboItem(
+                    e.id,
+                    lightAndSensorList.stream().filter(item -> item.id.equals(e.lightId)).findFirst().get().name,
+                    lightAndSensorList.stream().filter(item -> item.id.equals(e.sensorId)).findFirst().get().name
+            ));
+        }
+
+        comboListView.setAdapter(new ArrayAdapter<>(this, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, comboList));
+    }
+
     private void onAddLightClick() {
         CreateLightFragment createLightFragment = new CreateLightFragment();
-        createLightFragment.setRefreshAfterSave(() -> fetchLights());
+        createLightFragment.setRefreshCallback(this::loadData);
+        createLightFragment.setData(this.data);
         createLightFragment.show(getSupportFragmentManager(), "createLightFragment");
     }
 
     private void onMyAccountClick() {
         // Navigate to AccountActivity
         Intent intent = new Intent(this, AccountActivity.class);
-
-        // Pass the username if available
-        String token = sharedPreferencesHelper.getToken();
-        if (token != null) {
-            JWT jwt = new JWT(token);
-            String username = jwt.getClaim("sub").asString();
-            if (username != null) {
-                intent.putExtra("username", username);
-            }
-        }
-
         startActivity(intent);
     }
 
-    private void fetchLights() {
-        Call<List<LightService.LightResponse>> call = lightService.getLights();
-        call.enqueue(new Callback<List<LightService.LightResponse>>() {
-            @Override
-            public void onResponse(Call<List<LightService.LightResponse>> call, Response<List<LightService.LightResponse>> response) {
-                if (response.isSuccessful()) {
-                    lights = response.body();
-                    loadListView();
-                } else {
-                    Toast.makeText(LightingControlActivity.this, "Failed to load lights", Toast.LENGTH_SHORT).show();
-                }
-            }
+    private static class KeyValueItem {
+        public String type;
+        public String id;
+        public String name;
 
-            @Override
-            public void onFailure(Call<List<LightService.LightResponse>> call, Throwable t) {
-                Toast.makeText(LightingControlActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+        public KeyValueItem(String type, String id, String name) {
+            this.type = type;
+            this.id = id;
+            this.name = name;
+        }
 
-    private void loadListView() {
-        if (lights != null && listView != null) {
-            List<String> lightNames = new ArrayList<>();
-            for (LightService.LightResponse light : lights) {
-                lightNames.add("• " + light.getName());
-            }
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, lightNames);
-            listView.setAdapter(adapter);
+        @NonNull
+        @Override
+        public String toString() {
+            return type + ": " + name;
         }
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (lights != null && position < lights.size()) {
-            LightService.LightResponse light = lights.get(position);
-            Intent intent = new Intent(this, SpecificLightActivity.class);
-            intent.putExtra("lightId", light.getId());
-            intent.putExtra("lightName", light.getName());
-            startActivity(intent);
+    private static class ComboItem {
+        public String id;
+        public String lightName;
+        public String sensorName;
+
+        public ComboItem(String id, String lightName, String sensorName) {
+            this.id = id;
+            this.lightName = lightName;
+            this.sensorName = sensorName;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return lightName + " and " + sensorName;
         }
     }
 }

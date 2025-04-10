@@ -2,92 +2,61 @@ package api;
 
 import android.util.Log;
 
-import java.util.concurrent.TimeUnit;
+import androidx.annotation.NonNull;
+
+
+import java.util.function.Consumer;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
-import okio.ByteString;
 
 public class WebSocketClient {
 
     private WebSocket webSocket;
     private OkHttpClient client;
-    private WebSocketListener listener;
-    private final String URL = "wss://89de-70-26-191-150.ngrok-free.app/Notification/ws"; // wss://[ngrok link]/Notification/ws
-    String token;
 
-    public WebSocketClient(WebSocketListener listener, String token) {
-        this.listener = listener;
+    private final String URL = "wss://58e5-66-130-27-237.ngrok-free.app/Notification/ws"; // wss://[ngrok link]/Notification/ws
+    private final String token;
+
+    private Consumer<String> messageListener;
+
+    public WebSocketClient(String token) {
         this.token = token;
+
+        connectWebSocket();
     }
 
-    public void connectWebSocket() {
-        client = new OkHttpClient.Builder()
-                //.pingInterval(30, TimeUnit.SECONDS) // Keep connection alive
-                .build();
+    private void connectWebSocket() {
+        client = new OkHttpClient();
 
         Request request = new Request.Builder()
                 .url(URL)
-                .addHeader("Authorization", "Bearer " + token) // Send JWT token
+                .addHeader("Authorization", "Bearer " + token)
                 .build();
 
-        webSocket = client.newWebSocket(request, listener);
+        webSocket = client.newWebSocket(request, new WebSocketListener() {
+            @Override
+            public void onMessage(@NonNull WebSocket webSocket, @NonNull String text) {
+                messageListener.accept(text);
+            }
+
+            @Override
+            public void onFailure(@NonNull WebSocket webSocket, @NonNull Throwable t, Response response) {
+                Log.e("WebSocket", "Connection failed", t);
+            }
+        });
     }
 
-    public void sendMessage(String message) {
+    public void stop() {
         if (webSocket != null) {
-            webSocket.send(message);
-        } else {
-            Log.e("WebSocketClient", "WebSocket is not connected.");
+            webSocket.close(1000, null);
         }
     }
 
-    public void closeWebSocket() {
-        if (webSocket != null) {
-            webSocket.close(1000, "Closing connection");
-        }
-    }
-
-    public static abstract class MyWebSocketListener extends WebSocketListener {
-
-        @Override
-        public void onOpen(WebSocket webSocket, Response response) {
-            Log.d("WebSocket", "Connection opened");
-            // Handle connection open event
-        }
-
-        @Override
-        public void onMessage(WebSocket webSocket, String text) {
-            Log.d("WebSocket", "Received message: " + text);
-            // Handle text message
-        }
-
-        @Override
-        public void onMessage(WebSocket webSocket, ByteString bytes) {
-            Log.d("WebSocket", "Received bytes message: " + bytes.hex());
-            // Handle byte message
-        }
-
-        @Override
-        public void onClosing(WebSocket webSocket, int code, String reason) {
-            Log.d("WebSocket", "Closing connection: " + code + " " + reason);
-            // Handle connection closing
-        }
-
-        @Override
-        public void onClosed(WebSocket webSocket, int code, String reason) {
-            Log.d("WebSocket", "Connection closed: " + code + " " + reason);
-            // Handle connection closed
-        }
-
-        @Override
-        public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-            Log.e("WebSocket", "Connection failure: " + t.getMessage());
-            t.printStackTrace();
-            // Handle connection failure
-        }
+    public void setOnMessageListener(Consumer<String> listener) {
+        this.messageListener = listener;
     }
 }
