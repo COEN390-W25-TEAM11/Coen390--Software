@@ -57,9 +57,14 @@ public interface LightService {
             }
         }
 
-        public static class MotionResponse  implements Serializable{
+        public static class MotionResponse implements Serializable{
             public String dateTime;
             public boolean motion;
+
+            public MotionResponse(String dateTime, boolean motion) {
+                this.dateTime = dateTime;
+                this.motion = motion;
+            }
 
             private String getDayOfMonthSuffix(int n) {
                 if (n >= 11 && n <= 13) return "th";

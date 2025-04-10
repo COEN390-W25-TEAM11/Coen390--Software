@@ -7,6 +7,8 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Spanned;
@@ -27,13 +29,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.lightingcontrol.helpers.SharedPreferencesHelper;
 import com.google.android.material.appbar.MaterialToolbar;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
 import api.LightService;
+import api.MotionNotificationClient;
 import api.RetrofitClient;
+import api.WebSocketClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -42,9 +48,10 @@ import retrofit2.Retrofit;
 public class SpecificSensorActivity extends AppCompatActivity {
 
 
-    // Services and helper
+    // Services, helper, and clients
     private SharedPreferencesHelper sharedPreferencesHelper;
     private LightService lightService;
+    private MotionNotificationClient motionNotificationClient;
 
     // Data
     private LightService.GetResponse.SensorResponse currentSensor;
@@ -77,6 +84,7 @@ public class SpecificSensorActivity extends AppCompatActivity {
             public void onClick(View v) {
                 final EditText input = new EditText(SpecificSensorActivity.this);
                 input.setInputType(InputType.TYPE_CLASS_TEXT);
+                input.setText(currentSensor.name);
 
                 new AlertDialog
                         .Builder(SpecificSensorActivity.this).setTitle("Sensor name")
@@ -128,6 +136,9 @@ public class SpecificSensorActivity extends AppCompatActivity {
                         .show();
             }
         });
+
+        motionNotificationClient = new MotionNotificationClient(sharedPreferencesHelper.getToken(), currentSensor.id);
+        motionNotificationClient.setNewMovementListener(this::addMovement);
 
         updateInterface();
     }
@@ -188,6 +199,12 @@ public class SpecificSensorActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onDestroy() {
+        motionNotificationClient.stop();
+        super.onDestroy();
+    }
+
     private void save() {
         Call<Void> call = lightService.updateSensor(currentSensor.id, new LightService.UpdateSensorModel(currentSensor.name, currentSensor.sensitivity, currentSensor.timeout));
         call.enqueue(new Callback<Void>() {
@@ -218,5 +235,14 @@ public class SpecificSensorActivity extends AppCompatActivity {
         motionList = motionList.stream().filter(e -> e.motion).collect(Collectors.toList());
 
         movementListVew.setAdapter(new ArrayAdapter<>(this, R.layout.list_view_item, motionList));
+    }
+
+    private void addMovement(LightService.GetResponse.MotionResponse movement) {
+        var motionLinkedList = new LinkedList<LightService.GetResponse.MotionResponse>(Arrays.asList(currentSensor.motion));
+        motionLinkedList.addFirst(movement);
+
+        currentSensor.motion = motionLinkedList.toArray(new LightService.GetResponse.MotionResponse[0]);
+
+        new Handler(Looper.getMainLooper()).post(this::updateInterface);
     }
 }

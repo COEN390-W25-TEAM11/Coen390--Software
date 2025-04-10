@@ -5,7 +5,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory; // to convert JSON response to java objects
 
 public class RetrofitClient {
-    private static final String URL = "https://dd1e-204-48-94-87.ngrok-free.app ";
+    private static final String URL = "https://58e5-66-130-27-237.ngrok-free.app ";
 
     private static Retrofit unauthenticatedRetrofit; // retrofit instance for login, when we don't have JWT token yet
     private static Retrofit retrofit; // retrofit instance for all other API requests
