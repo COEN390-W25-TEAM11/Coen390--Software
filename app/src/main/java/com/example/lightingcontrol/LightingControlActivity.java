@@ -61,12 +61,14 @@ public class LightingControlActivity extends AppCompatActivity {
         TextView helloUser = findViewById(R.id.helloUser);
         TextView addLightText = findViewById(R.id.addLightText);
         TextView myAccountText = findViewById(R.id.myAccountText);
+        TextView faqText = findViewById(R.id.faqText);
         lightAndSensorListView = findViewById(R.id.listView1);
         comboListView = findViewById(R.id.listView2);
 
         // Set click listeners for menu items
         addLightText.setOnClickListener(v -> onAddLightClick());
         myAccountText.setOnClickListener(v -> onMyAccountClick());
+        faqText.setOnClickListener(v -> onFaqClick());
 
         // Get JWT token
         sharedPreferencesHelper = new SharedPreferencesHelper(this);
@@ -209,6 +211,12 @@ public class LightingControlActivity extends AppCompatActivity {
     private void onMyAccountClick() {
         // Navigate to AccountActivity
         Intent intent = new Intent(this, AccountActivity.class);
+        startActivity(intent);
+    }
+
+    private void onFaqClick() {
+        // Navigate to FaqActivity
+        Intent intent = new Intent(this, FaqActivity.class);
         startActivity(intent);
     }
 

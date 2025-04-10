@@ -58,6 +58,16 @@
             android:layout_height="wrap_content"
             android:text="• My Account"
             android:textSize="16sp"
+            android:layout_marginBottom="8dp"
+            android:clickable="true"
+            android:textColor="#6200EE"/>
+
+        <TextView
+            android:id="@+id/faqText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="• Frequently Asked Questions"
+            android:textSize="16sp"
             android:clickable="true"
             android:textColor="#6200EE"/>
     </LinearLayout>
@@ -76,8 +86,17 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginHorizontal="24dp"
-        android:text="Click on a light or sensor below to control it"
-        android:textSize="16sp"/>
+        android:text="Registered Lights &amp; Sensors"
+        android:textSize="20sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginHorizontal="24dp"
+        android:text="Click on a light or sensor below for more settings"
+        android:textSize="14sp"/>
 
     <!-- Lights List -->
     <ListView
@@ -85,18 +104,35 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="10dp"
         android:layout_marginHorizontal="24dp"
         android:divider="#E0E0E0"
         android:dividerHeight="1dp"/>
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="24dp"
+        android:background="#E0E0E0"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginHorizontal="24dp"
+        android:text="Combinations"
+        android:textSize="20sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginHorizontal="24dp"
         android:text="Click on a combination to delete it"
-        android:textSize="16sp"/>
+        android:textSize="14sp"/>
 
     <!-- Lights List -->
     <ListView
@@ -104,7 +140,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="10dp"
         android:layout_marginHorizontal="24dp"
         android:divider="#E0E0E0"
         android:dividerHeight="1dp"
