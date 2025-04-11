@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FaqActivity">
+
+    <!-- Toolbar -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayoutFaq"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBarFaq"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIconTint="@android:color/white"
+            app:titleTextColor="@android:color/white"
+            app:title="Frequently Asked Questions"/>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Main Content Container -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appBarLayoutFaq">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Q1 -->
+                <LinearLayout
+                    android:id="@+id/linearQ1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="10dp"
+                    android:background="?android:attr/selectableItemBackground">
+
+                    <TextView
+                        android:id="@+id/q1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="1. What are &quot;registered lights and sensors&quot;?"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:padding="16dp"
+                        android:onClick="toggleAnswerVisibility"/>
+
+                    <TextView
+                        android:id="@+id/a1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="16dp"
+                        android:text="&quot;Registered lights and sensors&quot; refer to the devices included in your Smart Home kit that have been successfully connected to your Smart Home controller. These devices are automatically activated during the initial setup."
+                    android:textSize="16sp"
+                    android:visibility="gone"/>
+                </LinearLayout>
+
+                <!-- Q2 -->
+                <LinearLayout
+                    android:id="@+id/linearQ2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="10dp"
+                    android:background="?android:attr/selectableItemBackground">
+
+                    <TextView
+                        android:id="@+id/q2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="2. What settings can I modify for a light?"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:padding="16dp"
+                        android:onClick="toggleAnswerVisibility"/>
+
+                    <TextView
+                        android:id="@+id/a2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="16dp"
+                        android:text="When you select a specific light from the &quot;Registered Lights &amp; Sensors&quot; list, you can rename the light, control it manually and delete it."
+                    android:textSize="16sp"
+                    android:visibility="gone"/>
+                </LinearLayout>
+
+                <!-- Q3 -->
+                <LinearLayout
+                    android:id="@+id/linearQ3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="10dp"
+                    android:background="?android:attr/selectableItemBackground">
+
+                    <TextView
+                        android:id="@+id/q3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="3. What settings can I modify for a sensor?"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:padding="16dp"
+                        android:onClick="toggleAnswerVisibility"/>
+
+                    <TextView
+                        android:id="@+id/a3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="16dp"
+                        android:text="Selecting a sensor from the &quot;Registered Lights &amp; Sensors&quot; list allows you to rename the sensor, adjust its timeout value, view the history of motion detected by the sensor and delete it."
+                    android:textSize="16sp"
+                    android:visibility="gone"/>
+                </LinearLayout>
+
+                <!-- Q4 -->
+                <LinearLayout
+                    android:id="@+id/linearQ4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="10dp"
+                    android:background="?android:attr/selectableItemBackground">
+
+                    <TextView
+                        android:id="@+id/q4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="4. What happens if I delete a light or sensor?"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:padding="16dp"
+                        android:onClick="toggleAnswerVisibility"/>
+
+                    <TextView
+                        android:id="@+id/a4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="16dp"
+                        android:text="If you delete a light or sensor, it will be removed from the system and can no longer be controlled. If the device is broken or no longer needed, you can delete it. To re-register the device, simply install it back onto the controller and toggle it off and on again."
+                        android:textSize="16sp"
+                        android:visibility="gone"/>
+                </LinearLayout>
+
+                <!-- Q5 -->
+                <LinearLayout
+                    android:id="@+id/linearQ5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="10dp"
+                    android:background="?android:attr/selectableItemBackground">
+
+                    <TextView
+                        android:id="@+id/q5"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="5. What is a combination?"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:padding="16dp"
+                        android:onClick="toggleAnswerVisibility"/>
+
+                    <TextView
+                        android:id="@+id/a5"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="16dp"
+                        android:text="A combination refers to the pairing of a specific light with a specific sensor. This allows you to set up automatic control, where the light’s state is governed by the sensor’s activity."
+                        android:textSize="16sp"
+                        android:visibility="gone"/>
+                </LinearLayout>
+
+                <!-- Q6 -->
+                <LinearLayout
+                    android:id="@+id/linearQ6"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="10dp"
+                    android:background="?android:attr/selectableItemBackground">
+
+                    <TextView
+                        android:id="@+id/q6"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="6. What happens if I delete a combination?"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:padding="16dp"
+                        android:onClick="toggleAnswerVisibility"/>
+
+                    <TextView
+                        android:id="@+id/a6"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="16dp"
+                        android:text="Deleting a combination removes the link between a specific light and sensor, so the light will no longer be controlled by that sensor. The individual devices remain in your system and can be used independently or re-paired with another sensor or light."
+                        android:textSize="16sp"
+                        android:visibility="gone"/>
+                </LinearLayout>
+
+                <!-- Q7 -->
+                <LinearLayout
+                    android:id="@+id/linearQ7"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="10dp"
+                    android:background="?android:attr/selectableItemBackground">
+
+                    <TextView
+                        android:id="@+id/q7"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="7. What are connected accounts?"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:padding="16dp"
+                        android:onClick="toggleAnswerVisibility"/>
+
+                    <TextView
+                        android:id="@+id/a7"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="16dp"
+                        android:text="Connected accounts are additional users linked to the same Smart Home system. The first user to register on your controller becomes the admin, with the ability to enable or disable additional accounts. Each new account must go through its own registration process. The admin can manage connected accounts from the &quot;My Account&quot; page by toggling the setting to enable or disable access for other users."
+                        android:textSize="16sp"
+                        android:visibility="gone"/>
+
+                </LinearLayout>
+
+                <!-- Q8 -->
+                <LinearLayout
+                    android:id="@+id/linearQ8"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="10dp"
+                    android:background="?android:attr/selectableItemBackground">
+
+                    <TextView
+                        android:id="@+id/q8"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="8. How can I reset my board?"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:padding="16dp"
+                        android:onClick="toggleAnswerVisibility"/>
+
+                    <TextView
+                        android:id="@+id/a8"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="16dp"
+                        android:text="If your board is experiencing issues, simply press and hold the black &quot;Reset&quot; button on your controller for 3 seconds. Please note that this will disconnect you from your current WiFi network. After resetting, the board will re-register all lights and sensors with the application, and you will need to reconnect to your WiFi."
+                        android:textSize="16sp"
+                        android:visibility="gone"/>
+
+                </LinearLayout>
+
+                <!-- Q9 -->
+                <LinearLayout
+                    android:id="@+id/linearQ9"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="10dp"
+                    android:background="?android:attr/selectableItemBackground">
+
+                    <TextView
+                        android:id="@+id/q9"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="9. How can I reconnect my WiFi?"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:padding="16dp"
+                        android:onClick="toggleAnswerVisibility"/>
+
+                    <TextView
+                        android:id="@+id/a9"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="16dp"
+                        android:text="If your WiFi details change or the controller has been reset, follow these steps: Open the &quot;Settings&quot; app on your device and connect to the &quot;SmartHome390&quot; network. Then, select &quot;Configure WiFi&quot; and enter your new WiFi credentials. Once the page redirects back to the &quot;Settings&quot; app, the connection is complete, and your WiFi is successfully reconnected."
+                        android:textSize="16sp"
+                        android:visibility="gone"/>
+
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
