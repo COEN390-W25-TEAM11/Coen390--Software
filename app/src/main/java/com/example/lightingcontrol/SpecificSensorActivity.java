@@ -229,7 +229,7 @@ public class SpecificSensorActivity extends AppCompatActivity {
 
         sensorName.setText(currentSensor.name);
 
-        sensorInformation.setText(String.format(Locale.getDefault(), "Connected Sensor: %d", currentSensor.pin));
+        sensorInformation.setText(String.format(Locale.getDefault(), "Sensor ID: %d", currentSensor.pin));
 
         var motionList = Arrays.asList(currentSensor.motion);
         motionList = motionList.stream().filter(e -> e.motion).collect(Collectors.toList());
