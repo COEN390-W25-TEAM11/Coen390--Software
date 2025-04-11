@@ -201,7 +201,7 @@ public class SpecificLightActivity extends AppCompatActivity {
 
         lightName.setText(currentLight.name);
 
-        lightInformation.setText(String.format("Connected Sensor: %d \nCurrent Mode: %s", currentLight.pin, currentLight.overide ? "Manual Mode" : "Sensor Mode"));
+        lightInformation.setText(String.format("Light ID: %d \nCurrent Mode: %s", currentLight.pin, currentLight.overide ? "Manual Mode" : "Sensor Mode"));
 
         String status = "";
         if (currentLight.overide) {
